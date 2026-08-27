@@ -7,12 +7,18 @@ import (
 	"time"
 )
 
+type Entity interface {
+	Simulate(w *World)
+	Pos() (x, y int)
+	Icon() byte
+}
+
 type World struct {
-	Width  int
-	Height int
-	Day    int
-	Sheep  []Sheep
-	rng    *rand.Rand
+	Width    int
+	Height   int
+	Day      int
+	Entities []Entity
+	rng      *rand.Rand
 }
 
 func main() {
@@ -22,7 +28,7 @@ func main() {
 	flag.Parse()
 
 	fmt.Print("\033[2J")
-	w := randomWorld(*seed, 20, 10, 3)
+	w := randomWorld(*seed, 20, 10)
 
 	for w.Day < *maxDays {
 		w.renderWorld()

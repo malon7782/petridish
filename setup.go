@@ -2,7 +2,7 @@ package main
 
 import "math/rand"
 
-func randomWorld(seed int64, width, height, sheepCount int) *World {
+func randomWorld(seed int64, width, height int) *World {
 	rng := rand.New(rand.NewSource(seed))
 	w := &World{
 		Width:  width,
@@ -10,8 +10,9 @@ func randomWorld(seed int64, width, height, sheepCount int) *World {
 		Day:    0,
 		rng:    rng,
 	}
-	for i := 0; i < sheepCount; i++ {
-		w.Sheep = append(w.Sheep, Sheep{X: rng.Intn(width),
+	// Sheeps
+	for i := 0; i < rng.Intn(9); i++ {
+		w.Entities = append(w.Entities, &Sheep{X: rng.Intn(width),
 			Y: rng.Intn(height)})
 	}
 	return w

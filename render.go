@@ -13,9 +13,16 @@ func (w *World) renderWorld() {
 		grid[i] = bytes.Repeat([]byte{'.'}, w.Width)
 	}
 
-	for _, s := range w.Sheep {
-		grid[s.Y][s.X] = 'S'
+	// draw all entities
+
+	for _, e := range w.Entities {
+		x, y := e.Pos()
+		if x >= 0 && x < w.Width && y >= 0 && y < w.Height {
+			grid[y][x] = e.Icon()
+		}
 	}
+
+	// stats
 
 	fmt.Printf("Day: %d\n", w.Day)
 	for _, row := range grid {

@@ -4,6 +4,8 @@ package main
 // so let's modify the world in-place.
 
 func (w *World) simulateWorld() {
-	w.handleSheep()
+	for _, e := range w.Entities {
+		e.Simulate(w)
+	}
 	w.Day += 1
 }
