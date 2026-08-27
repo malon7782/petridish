@@ -19,7 +19,7 @@ func (w *World) renderWorld() {
 		grid[y] = make([]Cell, w.Width)
 		for x := 0; x < w.Width; x++ {
 			grid[y][x] = Cell{
-				Char:  '0',
+				Char:  '@',
 				Color: "\033[38;5;240m",
 			}
 		}

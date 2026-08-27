@@ -23,6 +23,7 @@ type World struct {
 	Height   int
 	Day      int
 	Entities []Entity
+	Heights  [][]int // for stationary (?) elements of the world
 	Rng      *rand.Rand
 }
 

@@ -46,6 +46,11 @@ func abs(a int) int {
 //这个函数必须保证颜色与高度对应，因为render端只负责分别绘制字符与颜色
 
 func generateTerrain(w *World, numPeaks int) {
+	w.Heights = make([][]int, w.Height)
+	for y := 0; y < w.Height; y++ {
+		w.Heights[y] = make([]int, w.Width)
+	}
+
 	type peak struct {
 		x, y, h int
 	}
@@ -73,6 +78,12 @@ func generateTerrain(w *World, numPeaks int) {
 			if maxHeight < 0 {
 				maxHeight = 0
 			}
+
+			// write to w.height
+			// O(1)
+
+			w.Heights[y][x] = maxHeight
+
 			ColorCode := 240
 			if maxHeight > 0 {
 				ColorCode = ColorCode + (maxHeight-1)*2

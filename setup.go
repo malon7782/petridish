@@ -16,3 +16,13 @@ func randomWorld(seed int64, width, height int) *World {
 
 	return w
 }
+
+// -----------
+// helper functions
+
+func (w *World) getHeight(x, y int) int {
+	if x < 0 || y < 0 || x >= w.Width || y >= w.Height {
+		return 0
+	}
+	return w.Heights[x][y]
+}
