@@ -10,7 +10,8 @@ func randomWorld(seed int64, width, height int) *World {
 		Day:    0,
 		Rng:    rng,
 	}
-	generateTerrain(w, 4)
+	// Mountains
+	generateMountain(w, 4)
 	// Sheeps
 	generateSheep(w, 9)
 
@@ -24,5 +25,5 @@ func (w *World) getHeight(x, y int) int {
 	if x < 0 || y < 0 || x >= w.Width || y >= w.Height {
 		return 0
 	}
-	return w.Heights[x][y]
+	return w.Map[x][y].Height
 }

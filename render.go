@@ -19,14 +19,14 @@ func (w *World) renderWorld() {
 		grid[y] = make([]Cell, w.Width)
 		for x := 0; x < w.Width; x++ {
 			grid[y][x] = Cell{
-				Char:  '@',
-				Color: "\033[38;5;240m",
+				Char:  w.Map[y][x].Icon(),
+				Color: w.Map[y][x].Color(),
 			}
 		}
 	}
 
-	// iterate layers
-	for layer := 0; layer <= 1; layer++ {
+	// iterate layers. currently, only []Sheeps are in layer 1.
+	for layer := 1; layer <= 1; layer++ {
 		for _, e := range w.Entities {
 			if e.Layer() == layer {
 				x, y := e.Pos()

@@ -22,8 +22,8 @@ type World struct {
 	Width    int
 	Height   int
 	Day      int
-	Entities []Entity
-	Heights  [][]int // for stationary (?) elements of the world
+	Entities []Entity      // for living spieces
+	Map      [][]*Mountain // for (semi-)stationary elements of the world
 	Rng      *rand.Rand
 }
 

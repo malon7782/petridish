@@ -3,15 +3,8 @@ package main
 import "fmt"
 
 type Mountain struct {
-	X, Y     int
 	Height   int
 	ColorStr string
-}
-
-func (m *Mountain) Simulate(w *World) {}
-
-func (m *Mountain) Pos() (int, int) {
-	return m.X, m.Y
 }
 
 func (m *Mountain) Icon() byte {
@@ -22,10 +15,6 @@ func (m *Mountain) Icon() byte {
 		return '9'
 	}
 	return byte('0' + m.Height)
-}
-
-func (m *Mountain) Layer() int {
-	return 1
 }
 
 func (m *Mountain) Color() string {
@@ -45,10 +34,10 @@ func abs(a int) int {
 //Needswork: this part is ai-generated. Perhaps we need a better algo?
 //这个函数必须保证颜色与高度对应，因为render端只负责分别绘制字符与颜色
 
-func generateTerrain(w *World, numPeaks int) {
-	w.Heights = make([][]int, w.Height)
+func generateMountain(w *World, numPeaks int) {
+	w.Map = make([][]*Mountain, w.Height)
 	for y := 0; y < w.Height; y++ {
-		w.Heights[y] = make([]int, w.Width)
+		w.Map[y] = make([]*Mountain, w.Width)
 	}
 
 	type peak struct {
@@ -79,23 +68,16 @@ func generateTerrain(w *World, numPeaks int) {
 				maxHeight = 0
 			}
 
-			// write to w.height
-			// O(1)
-
-			w.Heights[y][x] = maxHeight
-
 			ColorCode := 240
 			if maxHeight > 0 {
 				ColorCode = ColorCode + (maxHeight-1)*2
 			}
 
-			w.Entities = append(w.Entities, &Mountain{
-				X:      x,
-				Y:      y,
+			w.Map[y][x] = &Mountain{
 				Height: maxHeight,
 				// Calculate the color
 				ColorStr: fmt.Sprintf("\033[38;5;%dm", ColorCode),
-			})
+			}
 		}
 	}
 }
