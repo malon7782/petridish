@@ -23,6 +23,7 @@ type World struct {
 	Height   int
 	Day      int
 	Entities []Entity      // for living spieces
+	Logger   *Logger
 	Map      [][]*Mountain // for (semi-)stationary elements of the world
 	Rng      *rand.Rand
 }

@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Sheep struct {
 	X, Y int
 }
@@ -16,6 +18,10 @@ func (s *Sheep) Simulate(w *World) {
 	if newY >= 0 && newY < w.Height {
 		s.Y = newY
 	}
+
+	// this message is for demo purposes and is indeed redundant.
+	// to be replaced with real events like birth and death of sheep
+	w.Logger.Add(w.Day, fmt.Sprintf("Day %d: Sheep moved.", w.Day))
 }
 
 func (s *Sheep) Pos() (int, int) {

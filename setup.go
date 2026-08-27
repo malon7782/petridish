@@ -7,6 +7,8 @@ func randomWorld(seed int64, width, height int) *World {
 	w := &World{
 		Width:  width,
 		Height: height,
+		Logger: &Logger{
+			Num: 4},
 		Day:    0,
 		Rng:    rng,
 	}

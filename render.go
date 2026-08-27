@@ -43,10 +43,17 @@ func (w *World) renderWorld() {
 	// print
 	fmt.Printf("Day: %d\n", w.Day)
 	var output string
+	events := w.Logger.Events
+	eventCount := w.Logger.Num
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
 			c := grid[y][x]
 			output += c.Color + string(c.Char) + "\033[0m"
+		}
+		// print log msgs
+		idx := len(events) - eventCount + y
+		if 0 <= idx && y < eventCount {
+			output += "  " + events[idx].Msg
 		}
 		output += "\n"
 	}
