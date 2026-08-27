@@ -8,7 +8,7 @@ import (
 )
 
 // ----------------------
-// 双鬼拍门，petridish最重要的两个数据结构
+// 双鬼拍门，petridish最重要的?个数据结构
 
 type Entity interface {
 	Simulate(w *World)
@@ -18,11 +18,14 @@ type Entity interface {
 	Color() string
 }
 
+// Needswork:
+// type Terrain interface...
+
 type World struct {
 	Width    int
 	Height   int
 	Day      int
-	Entities []Entity      // for living spieces
+	Entities []Entity // for living spieces
 	Logger   *Logger
 	Map      [][]*Mountain // for (semi-)stationary elements of the world
 	Rng      *rand.Rand

@@ -13,7 +13,8 @@ type Cell struct {
 func (w *World) renderWorld() {
 	fmt.Print("\033[H")
 
-	// initialize the ground (gray '.')
+	// Needswork: let't create an terrain interface so that we don't need
+	// to iterate every type of tile.
 	grid := make([][]Cell, w.Height)
 	for y := 0; y < w.Height; y++ {
 		grid[y] = make([]Cell, w.Width)
@@ -25,7 +26,8 @@ func (w *World) renderWorld() {
 		}
 	}
 
-	// iterate layers. currently, only []Sheeps are in layer 1.
+	// iterate layers.
+	// Needswork: to be honest, this part looks damn ugly
 	for layer := 1; layer <= 1; layer++ {
 		for _, e := range w.Entities {
 			if e.Layer() == layer {
@@ -40,11 +42,13 @@ func (w *World) renderWorld() {
 		}
 	}
 
-	// print
+	// initialize output
 	fmt.Printf("Day: %d\n", w.Day)
 	var output string
 	events := w.Logger.Events
 	eventCount := w.Logger.Num
+
+	// joint everything
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
 			c := grid[y][x]

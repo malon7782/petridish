@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+// Needswork: Mountain should implement Terrain interface.
+
 type Mountain struct {
 	Height   int
 	ColorStr string
@@ -31,8 +33,7 @@ func abs(a int) int {
 	return a
 }
 
-//Needswork: this part is ai-generated. Perhaps we need a better algo?
-//这个函数必须保证颜色与高度对应，因为render端只负责分别绘制字符与颜色
+// Needswork: this part is ai-generated. Perhaps we need a better algo?
 
 func generateMountain(w *World, numPeaks int) {
 	w.Map = make([][]*Mountain, w.Height)

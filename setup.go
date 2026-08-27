@@ -9,8 +9,8 @@ func randomWorld(seed int64, width, height int) *World {
 		Height: height,
 		Logger: &Logger{
 			Num: 4},
-		Day:    0,
-		Rng:    rng,
+		Day: 0,
+		Rng: rng,
 	}
 	// Mountains
 	generateMountain(w, 4)
@@ -22,6 +22,8 @@ func randomWorld(seed int64, width, height int) *World {
 
 // -----------
 // helper functions
+// Needswork: together with main.go, some stuffs associated with
+// struct World need to be migrated to a seperate file like world.go.
 
 func (w *World) getHeight(x, y int) int {
 	if x < 0 || y < 0 || x >= w.Width || y >= w.Height {
