@@ -5,8 +5,8 @@ type Sheep struct {
 }
 
 func (s *Sheep) Simulate(w *World) {
-	dx := w.rng.Intn(3) - 1
-	dy := w.rng.Intn(3) - 1
+	dx := w.Rng.Intn(3) - 1
+	dy := w.Rng.Intn(3) - 1
 	newX := s.X + dx
 	newY := s.Y + dy
 
@@ -24,4 +24,21 @@ func (s *Sheep) Pos() (int, int) {
 
 func (s *Sheep) Icon() byte {
 	return 'S'
+}
+
+func (s *Sheep) Layer() int {
+	return 1
+}
+
+func (s *Sheep) Color() string {
+	return "\033[38;5;255m"
+}
+
+// map gen related
+
+func generateSheep(w *World, num int) {
+	for i := 0; i < num; i++ {
+		w.Entities = append(w.Entities, &Sheep{X: w.Rng.Intn(w.Width),
+			Y: w.Rng.Intn(w.Height)})
+	}
 }

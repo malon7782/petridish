@@ -8,12 +8,11 @@ func randomWorld(seed int64, width, height int) *World {
 		Width:  width,
 		Height: height,
 		Day:    0,
-		rng:    rng,
+		Rng:    rng,
 	}
+	generateTerrain(w, 4)
 	// Sheeps
-	for i := 0; i < rng.Intn(9); i++ {
-		w.Entities = append(w.Entities, &Sheep{X: rng.Intn(width),
-			Y: rng.Intn(height)})
-	}
+	generateSheep(w, 9)
+
 	return w
 }

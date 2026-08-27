@@ -7,10 +7,15 @@ import (
 	"time"
 )
 
+// ----------------------
+// 双鬼拍门，petridish最重要的两个数据结构
+
 type Entity interface {
 	Simulate(w *World)
 	Pos() (x, y int)
 	Icon() byte
+	Layer() int
+	Color() string
 }
 
 type World struct {
@@ -18,17 +23,22 @@ type World struct {
 	Height   int
 	Day      int
 	Entities []Entity
-	rng      *rand.Rand
+	Rng      *rand.Rand
 }
 
+// -----------------------
+
 func main() {
+	fmt.Print("\033[2J")
+	fmt.Print("\033[?25l")
+
 	seed := flag.Int64("seed", time.Now().UnixNano(), "Seed of the world")
 	maxDays := flag.Int("days", 100, "Number of days")
 	tickMs := flag.Int("tick", 200, "Rate of time")
 	flag.Parse()
 
 	fmt.Print("\033[2J")
-	w := randomWorld(*seed, 20, 10)
+	w := randomWorld(*seed, 40, 20)
 
 	for w.Day < *maxDays {
 		w.renderWorld()
