@@ -18,9 +18,7 @@
 
  - architecture
 
- 1. Let render render. Let simulator simulate.
- 2. Try to classify every new element you wanna add to the world, into
- either Entity or Terrain.
+ 1. Let renderer render. Let simulator simulate.
 
  - other
 
