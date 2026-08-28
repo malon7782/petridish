@@ -22,13 +22,18 @@ type Entity interface {
 // type Terrain interface...
 
 type World struct {
-	Width    int
-	Height   int
-	Day      int
-	Entities []Entity // for living spieces
-	Logger   *Logger
-	Map      [][]*Mountain // for (semi-)stationary elements of the world
-	Rng      *rand.Rand
+	Width  int
+	Height int
+	Day    int
+
+	// for living spieces
+	Entities []Entity
+	// for (semi-)stationary elements of the world
+	Map   [][]*Mountain
+	Lakes [][]*Lake
+
+	Logger *Logger
+	Rng    *rand.Rand
 }
 
 // -----------------------

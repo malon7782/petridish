@@ -16,6 +16,8 @@ func randomWorld(seed int64, width, height int) *World {
 	generateMountain(w, 4)
 	// Sheeps
 	generateSheep(w, 9)
+	// Lakes
+	// cumLake(w, 30)
 
 	return w
 }

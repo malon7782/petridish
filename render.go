@@ -13,20 +13,28 @@ type Cell struct {
 func (w *World) renderWorld() {
 	fmt.Print("\033[H")
 
-	// Needswork: let't create an terrain interface so that we don't need
-	// to iterate every type of tile.
 	grid := make([][]Cell, w.Height)
+
+	// iterate the terrains
 	for y := 0; y < w.Height; y++ {
 		grid[y] = make([]Cell, w.Width)
 		for x := 0; x < w.Width; x++ {
+			// mountain
 			grid[y][x] = Cell{
 				Char:  w.Map[y][x].Icon(),
 				Color: w.Map[y][x].Color(),
 			}
+			// lake
+			if w.Lakes != nil && w.Lakes[y][x] != nil {
+				grid[y][x] = Cell{
+					Char:  w.Lakes[y][x].Icon(),
+					Color: w.Lakes[y][x].Color(),
+				}
+			}
 		}
 	}
 
-	// iterate layers.
+	// iterate entity layers.
 	// Needswork: to be honest, this part looks damn ugly
 	for layer := 1; layer <= 1; layer++ {
 		for _, e := range w.Entities {
