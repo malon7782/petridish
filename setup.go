@@ -19,6 +19,7 @@ func randomWorld(seed int64, width, height int) *World {
 	// Lakes
 	// cumLake(w, 30)
 	generateBFSLake(w, 9)
+	generateBFSLake(w, 9)
 
 	return w
 }

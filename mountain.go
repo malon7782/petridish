@@ -11,7 +11,7 @@ type Mountain struct {
 
 func (m *Mountain) Icon() byte {
 	if m.Height <= 0 {
-		return '0'
+		return '+'
 	}
 	if m.Height > 9 {
 		return '9'
@@ -69,9 +69,11 @@ func generateMountain(w *World, numPeaks int) {
 				maxHeight = 0
 			}
 
-			ColorCode := 240
+			ColorCode := 22
 			if maxHeight > 0 {
-				ColorCode = ColorCode + (maxHeight-1)*2
+				ColorCode = ColorCode + (maxHeight/2)*6
+			} else {
+				ColorCode = 229
 			}
 
 			w.Map[y][x] = &Mountain{
