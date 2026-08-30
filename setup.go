@@ -8,16 +8,17 @@ func randomWorld(seed int64, width, height int) *World {
 		Width:  width,
 		Height: height,
 		Logger: &Logger{
-			Num: 4},
+			Num: 10},
 		Day: 0,
 		Rng: rng,
 	}
 	// Mountains
-	generateMountain(w, 4)
+	generateMountain(w, 7)
 	// Sheeps
 	generateSheep(w, 9)
 	// Lakes
 	// cumLake(w, 30)
+	generateBFSLake(w, 9)
 
 	return w
 }
