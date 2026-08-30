@@ -1,3 +1,5 @@
+![logo](https://github.com/malon7782/petridish/blob/90d421e39f08221ae87ffd78923ac8e95c58fe55/avatar.jpg)
+
 ## This README is currently used for dev notes instead of product overview.
 
 ****
