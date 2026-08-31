@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 // world is displayed as a []Cell array
@@ -52,7 +53,8 @@ func (w *World) renderWorld() {
 
 	// initialize output
 	fmt.Printf("Day: %d\n", w.Day)
-	var output string
+	var sb strings.Builder
+	sb.Grow(w.Width * w.Height * 20)
 	events := w.Logger.Events
 	eventCount := w.Logger.Num
 
@@ -60,14 +62,18 @@ func (w *World) renderWorld() {
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
 			c := grid[y][x]
-			output += c.Color + string(c.Char) + "\033[0m"
+			sb.WriteString(c.Color)
+			sb.WriteByte(c.Char)
+			sb.WriteString("\033[0m")
 		}
 		// print log msgs
 		idx := len(events) - eventCount + y
 		if 0 <= idx && y < eventCount {
-			output += "  " + events[idx].Msg
+			//	output += "  " + events[idx].Msg
+			sb.WriteString("  ")
+			sb.WriteString(events[idx].Msg)
 		}
-		output += "\n"
+		sb.WriteByte('\n')
 	}
-	fmt.Print(output)
+	fmt.Print(sb.String())
 }
