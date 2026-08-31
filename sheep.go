@@ -1,9 +1,7 @@
 package main
 
-import "fmt"
-
 type Sheep struct {
-	X, Y int
+	Y, X int
 }
 
 func (s *Sheep) Simulate(w *World) {
@@ -12,20 +10,21 @@ func (s *Sheep) Simulate(w *World) {
 	newX := s.X + dx
 	newY := s.Y + dy
 
-	if newX >= 0 && newX < w.Width {
-		s.X = newX
+	if newX >= 0 && newX < w.Width && newY >= 0 && newY < w.Height {
+		if w.Map[newY][newX].Height >= 1 || w.Lakes[newY][newX] != nil {
+			return
+		} else {
+			s.Y = newY
+			s.X = newX
+		}
 	}
-	if newY >= 0 && newY < w.Height {
-		s.Y = newY
-	}
-
 	// this message is for demo purposes and is indeed redundant.
 	// to be replaced with real events like birth and death of sheep
-	w.Logger.Add(w.Day, fmt.Sprintf("Day %d: Sheep moved.", w.Day))
+	//	w.Logger.Add(w.Day, fmt.Sprintf("Day %d: Sheep moved.", w.Day))
 }
 
 func (s *Sheep) Pos() (int, int) {
-	return s.X, s.Y
+	return s.Y, s.X
 }
 
 func (s *Sheep) Icon() byte {
@@ -44,7 +43,12 @@ func (s *Sheep) Color() string {
 
 func generateSheep(w *World, num int) {
 	for i := 0; i < num; i++ {
-		w.Entities = append(w.Entities, &Sheep{X: w.Rng.Intn(w.Width),
-			Y: w.Rng.Intn(w.Height)})
+		ny := w.Rng.Intn(w.Height)
+		nx := w.Rng.Intn(w.Width)
+		for w.Map[ny][nx].Height >= 1 || w.Lakes[ny][nx] != nil {
+			ny = w.Rng.Intn(w.Height)
+			nx = w.Rng.Intn(w.Width)
+		}
+		w.Entities = append(w.Entities, &Sheep{Y: ny, X: nx})
 	}
 }

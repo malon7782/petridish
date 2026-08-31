@@ -14,13 +14,13 @@ func randomWorld(seed int64, width, height int) *World {
 	}
 	// Mountains
 	generateMountain(w, 7)
-	// Sheeps
-	generateSheep(w, 9)
 	// Lakes
 	// cumLake(w, 30)
 	generateBFSLake(w, 9)
 	generateBFSLake(w, 9)
 
+	// Sheeps
+	generateSheep(w, 9)
 	return w
 }
 

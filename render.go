@@ -40,7 +40,7 @@ func (w *World) renderWorld() {
 	for layer := 1; layer <= 1; layer++ {
 		for _, e := range w.Entities {
 			if e.Layer() == layer {
-				x, y := e.Pos()
+				y, x := e.Pos()
 				if x >= 0 && x < w.Width && y >= 0 && y < w.Height {
 					grid[y][x] = Cell{
 						Char:  e.Icon(),
