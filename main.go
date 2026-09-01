@@ -31,6 +31,7 @@ type World struct {
 	// for (semi-)stationary elements of the world
 	Map   [][]*Mountain
 	Lakes [][]*Lake
+	Grass [][]bool
 
 	Logger *Logger
 	Rng    *rand.Rand

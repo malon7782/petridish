@@ -32,6 +32,13 @@ func (w *World) renderWorld() {
 					Color: w.Lakes[y][x].Color(),
 				}
 			}
+			// grass
+			if w.Grass != nil && w.Grass[y][x] == true {
+				grid[y][x] = Cell{
+					Char:  GrassIcon,
+					Color: GrassColor,
+				}
+			}
 		}
 	}
 
