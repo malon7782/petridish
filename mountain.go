@@ -210,8 +210,8 @@ func generateMountain(w *World, numPeaks int) {
 			}
 
 			ColorCode := 22
-			if maxHeight > 0 {
-				ColorCode = ColorCode + (maxHeight/2)*6
+			if height > 0 {
+				ColorCode = ColorCode + (height/2)*6
 			} else {
 				ColorCode = 229
 			}
