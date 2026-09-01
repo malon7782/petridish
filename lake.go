@@ -42,7 +42,7 @@ func cumLake(w *World, numLakes int) {
 		randomx := w.Rng.Intn(w.Width)
 
 		w.Lakes[randomy][randomx] = &Lake{
-			Height:   w.Map[randomy][randomx].Height,
+			Height:   1,
 			ColorStr: fmt.Sprintf("\033[38;5;%dm", 45),
 		}
 		// this is important. we need to dig down a unit depth  so that we can
@@ -59,6 +59,7 @@ func cumLake(w *World, numLakes int) {
 // when called, it searches the w.Map and find a block where height is no greater than 2
 // as source. when expanding, it won't cover the mountains which have heights greater than 2
 // either.
+// unless, by a chance of 1/2, one lake will be located at some peaks.
 
 // The edge of the lake has brighter blue color but no functional difference.
 
@@ -76,12 +77,36 @@ func generateBFSLake(w *World, size int) {
 	count := 0
 	inity := w.Rng.Intn(w.Height)
 	initx := w.Rng.Intn(w.Width)
-	for w.Map[inity][initx].Height > 2 {
-		inity = w.Rng.Intn(w.Height)
-		initx = w.Rng.Intn(w.Width)
+	isMntTop := w.Rng.Intn(4) == 0
+	if isMntTop {
+		// choose a peak for the mountaintop lake
+		var peak *Mountain
+		for i, row := range w.Map {
+			for j, elem := range row {
+				used := w.Lakes[i][j] != nil
+				if used {
+					used = w.Lakes[i][j].Height > 0
+				}
+				if (peak == nil || elem.Height > peak.Height) && !used {
+					peak = elem
+					inity = i
+					initx = j
+				}
+			}
+		}
+	} else {
+		for w.Map[inity][initx].Height > 2 {
+			inity = w.Rng.Intn(w.Height)
+			initx = w.Rng.Intn(w.Width)
+		}
 	}
 	queue := []pair{pair{y: inity, x: initx}}
 
+	maxheight := 2
+	if isMntTop {
+		size /= 2
+		maxheight = 9
+	}
 	for len(queue) > 0 && count < size {
 		sz := len(queue)
 		for i := 0; i < sz; i++ {
@@ -91,7 +116,7 @@ func generateBFSLake(w *World, size int) {
 				ny := cur.y + d[0]
 				nx := cur.x + d[1]
 				if ny >= 0 && nx >= 0 && ny < w.Height && nx < w.Width &&
-					w.Lakes[ny][nx] == nil && w.Map[ny][nx].Height < 2 {
+					w.Lakes[ny][nx] == nil && w.Map[ny][nx].Height < maxheight {
 					// ensure at least genarate the first size/3 rounds of lake terrains
 					if count < size/3 {
 						queue = append(queue, pair{ny, nx})
