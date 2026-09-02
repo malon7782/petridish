@@ -16,11 +16,14 @@ func randomWorld(seed int64, width, height int) *World {
 
 	// Mountains
 	generateMountain(w, 7)
+
 	// Lakes
-	// cumLake(w, 30)
+	generateLake(w) // actually, to initialize w.Lakes
+
 	generateBFSLake(w, 9)
 	generateBFSLake(w, 9)
 
+	// Weather
 	generateWeather(w)
 
 	//Grass

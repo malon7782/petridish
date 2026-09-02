@@ -1,8 +1,9 @@
 package main
 
 const (
-	GrassColor = "\033[38;5;70m"
-	GrassIcon  = '#'
+	GrassColor            = "\033[38;5;70m"
+	GrassIcon             = '#'
+	MinLakeHeightForGrass = 0.2
 )
 
 func generateGrass(w *World) {
@@ -17,7 +18,7 @@ func generateGrass(w *World) {
 func (w *World) simulateGrass() {
 	for y := range w.Height {
 		for x := range w.Width {
-			if w.Lakes[y][x] == nil {
+			if w.Lakes[y][x].Height < MinLakeHeightForGrass {
 				m := w.Moisture[y][x]
 
 				h := w.Map[y][x].Height
@@ -33,7 +34,7 @@ func (w *World) simulateGrass() {
 					roll := float64(w.Rng.Intn(9)) + 1
 
 					// influenced by both humidity and height
-					p := (0.2 * m) / float64((h+1)*(h+1))
+					p := (0.2 * m) / float64((h)*(h))
 
 					if p > roll {
 						w.Grass[y][x] = true

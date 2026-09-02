@@ -3,8 +3,7 @@ package main
 import "fmt"
 
 type Lake struct {
-	Height   float64
-	ColorStr string
+	Height float64
 }
 
 // helper
@@ -25,25 +24,42 @@ func (l *Lake) Color() string {
 	if l == nil {
 		return ""
 	}
-	return l.ColorStr
+
+	ColorStr := ""
+
+	if l.Height >= 1 {
+		ColorStr = fmt.Sprintf("\033[38;5;%dm", 33)
+	} else if l.Height >= 0.6 {
+		ColorStr = fmt.Sprintf("\033[38;5;%dm", 39)
+	} else if l.Height >= 0.2 {
+		ColorStr = fmt.Sprintf("\033[38;5;%dm", 45)
+	}
+	return ColorStr
 }
 
-// this is suitable for simulating rain. maybe it will live in rain.go or weather.go
-// in the future.
-func cumLake(w *World, numLakes int) {
+func generateLake(w *World) {
 	if w.Lakes == nil {
 		w.Lakes = make([][]*Lake, w.Height)
 		for y := 0; y < w.Height; y++ {
 			w.Lakes[y] = make([]*Lake, w.Width)
 		}
 	}
+	for y := range w.Height {
+		for x := range w.Width {
+			w.Lakes[y][x] = &Lake{Height: 0.0}
+		}
+	}
+}
+
+// this is suitable for simulating rain. maybe it will live in rain.go or weather.go
+// in the future.
+func cumLake(w *World, numLakes int) {
 	for i := 0; i < numLakes; i++ {
 		randomy := w.Rng.Intn(w.Height)
 		randomx := w.Rng.Intn(w.Width)
 
 		w.Lakes[randomy][randomx] = &Lake{
-			Height:   float64(1),
-			ColorStr: fmt.Sprintf("\033[38;5;%dm", 45),
+			Height: float64(1),
 		}
 		// this is important. we need to dig down a unit depth  so that we can
 		//* place water. in case different lake gen functions access the same [][]*Mounatin
@@ -66,12 +82,6 @@ func cumLake(w *World, numLakes int) {
 // It is implemented via BFS algo, as the names suggests.
 
 func generateBFSLake(w *World, size int) {
-	if w.Lakes == nil {
-		w.Lakes = make([][]*Lake, w.Height)
-		for y := 0; y < w.Height; y++ {
-			w.Lakes[y] = make([]*Lake, w.Width)
-		}
-	}
 	dirs := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 
 	count := 0
@@ -116,7 +126,7 @@ func generateBFSLake(w *World, size int) {
 				ny := cur.y + d[0]
 				nx := cur.x + d[1]
 				if ny >= 0 && nx >= 0 && ny < w.Height && nx < w.Width &&
-					w.Lakes[ny][nx] == nil && w.Map[ny][nx].Height < maxheight {
+					w.Lakes[ny][nx].Height == 0.0 && w.Map[ny][nx].Height < maxheight {
 					// ensure at least genarate the first size/3 rounds of lake terrains
 					if count < size/3 {
 						queue = append(queue, pair{ny, nx})
@@ -124,10 +134,7 @@ func generateBFSLake(w *World, size int) {
 						queue = append(queue, pair{ny, nx})
 					}
 				}
-				if float64(count) > 0.5*float64(size) {
-					w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0),
-						ColorStr: fmt.Sprintf("\033[38;5;%dm", 33)}
-				}
+				w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0)}
 			}
 			w.Map[cur.y][cur.x].Height -= 1
 		}

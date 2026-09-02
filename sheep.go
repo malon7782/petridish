@@ -1,5 +1,10 @@
 package main
 
+const (
+	MinLakeHeightForSheep = 0.20 // sheeps are safe to step onto lakes that are
+	// shallower than 0.15 unit height
+)
+
 type Sheep struct {
 	Y, X int
 }
@@ -11,7 +16,7 @@ func (s *Sheep) Simulate(w *World) {
 	newY := s.Y + dy
 
 	if newX >= 0 && newX < w.Width && newY >= 0 && newY < w.Height {
-		if w.Map[newY][newX].Height >= 2 || w.Lakes[newY][newX] != nil {
+		if w.Map[newY][newX].Height >= 2 || w.Lakes[newY][newX].Height > MinLakeHeightForSheep {
 			return
 		} else {
 			s.Y = newY
@@ -45,7 +50,7 @@ func generateSheep(w *World, num int) {
 	for i := 0; i < num; i++ {
 		ny := w.Rng.Intn(w.Height)
 		nx := w.Rng.Intn(w.Width)
-		for w.Map[ny][nx].Height >= 2 || w.Lakes[ny][nx] != nil {
+		for w.Map[ny][nx].Height >= 2 || w.Lakes[ny][nx].Height > MinLakeHeightForSheep {
 			ny = w.Rng.Intn(w.Height)
 			nx = w.Rng.Intn(w.Width)
 		}
