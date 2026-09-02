@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type Lake struct {
-	Height   float32
+	Height   float64
 	ColorStr string
 }
 
@@ -42,7 +42,7 @@ func cumLake(w *World, numLakes int) {
 		randomx := w.Rng.Intn(w.Width)
 
 		w.Lakes[randomy][randomx] = &Lake{
-			Height:   float32(1),
+			Height:   float64(1),
 			ColorStr: fmt.Sprintf("\033[38;5;%dm", 45),
 		}
 		// this is important. we need to dig down a unit depth  so that we can
@@ -126,7 +126,7 @@ func generateBFSLake(w *World, size int) {
 				}
 				if float64(count) > 0.5*float64(size) {
 					// edge of a lake has lighter color
-					w.Lakes[cur.y][cur.x] = &Lake{Height: float32(w.Map[cur.y][cur.x].Height),
+					w.Lakes[cur.y][cur.x] = &Lake{Height: float64(w.Map[cur.y][cur.x].Height),
 						ColorStr: fmt.Sprintf("\033[38;5;%dm", 33)}
 				}
 				w.Map[cur.y][cur.x].Height -= 1

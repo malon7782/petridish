@@ -29,9 +29,10 @@ type World struct {
 	// for living spieces
 	Entities []Entity
 	// for (semi-)stationary elements of the world
-	Map   [][]*Mountain
-	Lakes [][]*Lake
-	Grass [][]bool
+	Map      [][]*Mountain
+	Lakes    [][]*Lake
+	Grass    [][]bool
+	Moisture [][]float64
 
 	Logger *Logger
 	Rng    *rand.Rand

@@ -19,6 +19,9 @@ func randomWorld(seed int64, width, height int) *World {
 	generateBFSLake(w, 9)
 	generateBFSLake(w, 9)
 
+	// Moisture
+	generateMoisture(w)
+
 	// Sheeps
 	generateSheep(w, 9)
 	return w
