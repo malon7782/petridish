@@ -79,6 +79,7 @@ func (w *World) renderWorld() {
 			//	output += "  " + events[idx].Msg
 			sb.WriteString("  ")
 			sb.WriteString(events[idx].Msg)
+			sb.WriteString("   ")
 		}
 		sb.WriteByte('\n')
 	}
