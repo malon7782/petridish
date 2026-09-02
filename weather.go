@@ -27,7 +27,7 @@ func (w *World) simulateWeather() {
 	if w.Weathers.RainLeft > 0 {
 		w.Weathers.RainLeft--
 		p := float64(w.Weathers.RainTotal-w.Weathers.RainLeft) / float64(w.Weathers.RainTotal)
-		peak := w.Rng.Float64() * 4
+		peak := w.Rng.Float64() * w.Rng.Float64() * 4
 		w.Weathers.RainIntensity = peak * p * (1.0 - p)
 
 		w.Logger.Add(w.Day, fmt.Sprintf("Days left: %d", w.Weathers.RainLeft))

@@ -15,11 +15,11 @@ func generateMoisture(w *World) {
 func (w *World) updateMoisture() {
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
-			w.Moisture[y][x] = w.Weathers.RainIntensity * 20
 			if w.Lakes[y][x] != nil {
 				w.Moisture[y][x] = 30.0 + w.Weathers.RainIntensity*50
+			} else {
+				w.Moisture[y][x] = w.Moisture[y][x]*0.85 + w.Weathers.RainIntensity*2
 			}
-
 		}
 	}
 
