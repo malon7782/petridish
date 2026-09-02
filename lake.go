@@ -125,12 +125,11 @@ func generateBFSLake(w *World, size int) {
 					}
 				}
 				if float64(count) > 0.5*float64(size) {
-					// edge of a lake has lighter color
-					w.Lakes[cur.y][cur.x] = &Lake{Height: float64(w.Map[cur.y][cur.x].Height),
+					w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0),
 						ColorStr: fmt.Sprintf("\033[38;5;%dm", 33)}
 				}
-				w.Map[cur.y][cur.x].Height -= 1
 			}
+			w.Map[cur.y][cur.x].Height -= 1
 		}
 		count += 1
 	}
