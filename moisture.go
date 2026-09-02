@@ -15,8 +15,8 @@ func generateMoisture(w *World) {
 func (w *World) updateMoisture() {
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
-			if w.Lakes[y][x].Height > 0.0 {
-				w.Moisture[y][x] = 30.0
+			if w.Lakes[y][x] != nil && w.Lakes[y][x].Height > 0.0 {
+				w.Moisture[y][x] = 30.0 + w.Weathers.RainIntensity*100
 			}
 
 		}

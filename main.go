@@ -34,6 +34,9 @@ type World struct {
 	Grass    [][]bool
 	Moisture [][]float64
 
+	// for the weather status
+	Weathers *Weather
+
 	Logger *Logger
 	Rng    *rand.Rand
 }

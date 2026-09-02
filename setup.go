@@ -12,12 +12,16 @@ func randomWorld(seed int64, width, height int) *World {
 		Day: 0,
 		Rng: rng,
 	}
+	// NOTE: generateOOO() means to initialize, but not to simulate!
+
 	// Mountains
 	generateMountain(w, 7)
 	// Lakes
 	// cumLake(w, 30)
 	generateBFSLake(w, 9)
 	generateBFSLake(w, 9)
+
+	generateWeather(w)
 
 	// Moisture
 	generateMoisture(w)
