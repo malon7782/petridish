@@ -15,8 +15,9 @@ func generateMoisture(w *World) {
 func (w *World) updateMoisture() {
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
-			if w.Lakes[y][x] != nil && w.Lakes[y][x].Height > 0.0 {
-				w.Moisture[y][x] = 30.0 + w.Weathers.RainIntensity*100
+			w.Moisture[y][x] = w.Weathers.RainIntensity * 20
+			if w.Lakes[y][x] != nil {
+				w.Moisture[y][x] = 30.0 + w.Weathers.RainIntensity*50
 			}
 
 		}
@@ -29,7 +30,7 @@ func (w *World) updateMoisture() {
 		nextMoisture[y] = make([]float64, w.Width)
 	}
 
-	diffusionRate := 0.4
+	diffusionRate := 0.7
 
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {

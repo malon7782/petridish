@@ -23,6 +23,9 @@ func randomWorld(seed int64, width, height int) *World {
 
 	generateWeather(w)
 
+	//Grass
+	generateGrass(w)
+
 	// Moisture
 	generateMoisture(w)
 

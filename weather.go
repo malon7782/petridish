@@ -17,7 +17,7 @@ func (w *World) simulateWeather() {
 	// Rain
 	// - roll the duration
 	if w.Weathers.RainLeft <= 0 && w.Rng.Intn(100) < 5 {
-		w.Weathers.RainTotal = w.Rng.Intn(10) + 5 // last for 5 ~ 14 days
+		w.Weathers.RainTotal = w.Rng.Intn(20) + 10 // last for 20 ~ 29 days
 		w.Weathers.RainLeft = w.Weathers.RainTotal
 
 		w.Logger.Add(w.Day, fmt.Sprintf("It's raining!"))
@@ -27,7 +27,7 @@ func (w *World) simulateWeather() {
 	if w.Weathers.RainLeft > 0 {
 		w.Weathers.RainLeft--
 		p := float64(w.Weathers.RainTotal-w.Weathers.RainLeft) / float64(w.Weathers.RainTotal)
-		peak := w.Rng.Float64()
+		peak := w.Rng.Float64() * 4
 		w.Weathers.RainIntensity = peak * p * (1.0 - p)
 
 		w.Logger.Add(w.Day, fmt.Sprintf("Days left: %d", w.Weathers.RainLeft))

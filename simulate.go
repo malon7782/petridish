@@ -5,7 +5,8 @@ func (w *World) simulateWorld() {
 		e.Simulate(w)
 	}
 	w.simulateWeather()
+	w.updateMoisture()
+	w.simulateGrass()
+
 	w.Day += 1
-	// note that we don't simulate topographical elements. this part will be added
-	// in future updates!
 }
