@@ -11,7 +11,7 @@ func (s *Sheep) Simulate(w *World) {
 	newY := s.Y + dy
 
 	if newX >= 0 && newX < w.Width && newY >= 0 && newY < w.Height {
-		if w.Map[newY][newX].Height >= 1 || w.Lakes[newY][newX] != nil {
+		if w.Map[newY][newX].Height >= 2 || w.Lakes[newY][newX] != nil {
 			return
 		} else {
 			s.Y = newY
@@ -45,7 +45,7 @@ func generateSheep(w *World, num int) {
 	for i := 0; i < num; i++ {
 		ny := w.Rng.Intn(w.Height)
 		nx := w.Rng.Intn(w.Width)
-		for w.Map[ny][nx].Height >= 1 || w.Lakes[ny][nx] != nil {
+		for w.Map[ny][nx].Height >= 2 || w.Lakes[ny][nx] != nil {
 			ny = w.Rng.Intn(w.Height)
 			nx = w.Rng.Intn(w.Width)
 		}

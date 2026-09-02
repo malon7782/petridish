@@ -14,7 +14,7 @@ type Mountain struct {
 }
 
 func (m *Mountain) Icon() byte {
-	if m.Height <= 0 {
+	if m.Height <= 1 {
 		return '+'
 	}
 	if m.Height > 9 {
@@ -199,12 +199,12 @@ func generateMountain(w *World, numPeaks int) {
 			// mix max with sum, adding a bit noise
 			heightValue := math.Max(maxPeak+0.12*(peakSum-maxPeak), ridgeHeight)
 			heightValue *= 0.85 + 0.3*w.Rng.Float64()
-			height := 0
+			height := 1
 			if heightValue >= 0.75 {
 				height = int(math.Round(heightValue))
 			}
-			if height < 0 {
-				height = 0
+			if height < 1 {
+				height = 1
 			} else if height > 9 {
 				height = 9
 			}
@@ -228,8 +228,8 @@ func generateMountain(w *World, numPeaks int) {
 			ColorCode := RGB{57, 58, 63}
 			if height > 0 {
 				h := height
-				if h > 7 {
-					h = 7
+				if h > 9 {
+					h = 9
 				}
 				ColorCode = rockColors[h]
 			}
