@@ -19,22 +19,22 @@ func (w *World) simulateGrass() {
 	for y := range w.Height {
 		for x := range w.Width {
 			if w.Lakes[y][x].Height < MinLakeHeightForGrass {
-				m := w.Moisture[y][x]
-
 				h := w.Map[y][x].Height
 				if h < 0 {
 					h = 0
 				}
 
-				if m < 10.0 {
-					if roll := w.Rng.Intn(100); roll > 95 {
+				if w.Moisture[y][x] < 10.0 || w.Weathers.Temperature > 35 || w.Weathers.Temperature < 10 {
+					// Needswork: the model now is rather simple. as long as the humidity is too low
+					// or the temperature is not habitable, the grass start to die, but by a hardcoded chance
+					if roll := w.Rng.Intn(100); roll > 90 {
 						w.Grass[y][x] = false
 					}
 				} else {
 					roll := float64(w.Rng.Intn(9)) + 1
 
 					// influenced by both humidity and height
-					p := (0.2 * m) / float64((h)*(h))
+					p := (0.2 * w.Moisture[y][x]) / float64((h)*(h))
 
 					if p > roll {
 						w.Grass[y][x] = true

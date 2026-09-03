@@ -14,7 +14,10 @@ type Mountain struct {
 }
 
 func (m *Mountain) Icon() byte {
-	if m.Height <= 1 {
+	if m.Height == 0 {
+		return '#'
+	}
+	if m.Height == 1 {
 		return '+'
 	}
 	if m.Height > 9 {

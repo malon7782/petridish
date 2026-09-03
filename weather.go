@@ -3,17 +3,25 @@ package main
 import "fmt"
 
 type Weather struct {
+	Temperature         float64
 	RainIntensity       float64 // defined as "change in lake height per unit time per unit area"
 	RainTotal, RainLeft int
 }
 
 func generateWeather(w *World) {
-	w.Weathers = &Weather{RainIntensity: 0.0,
-		RainTotal: 0,
-		RainLeft:  0}
+	w.Weathers = &Weather{
+		Temperature: 20.0, //baseline
+
+		RainIntensity: 0.0,
+		RainTotal:     0,
+		RainLeft:      0}
 }
 
 func (w *World) simulateWeather() {
+	// Temperature
+	w.Weathers.Temperature += w.Rng.Float64()*6.0 - 2.99 // temperature change ~ [-2.99, 3.01)
+	w.Logger.Add(w.Day, fmt.Sprintf("T: %d", int(w.Weathers.Temperature)))
+
 	// Rain
 	// - roll the duration
 	if w.Weathers.RainLeft <= 0 && w.Rng.Intn(100) < 5 {

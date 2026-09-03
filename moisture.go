@@ -16,9 +16,9 @@ func (w *World) updateMoisture() {
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
 			if w.Lakes[y][x].Height > 0.5 { // lakes deeper than 0.5 contribute humidity
-				w.Moisture[y][x] = 40.0 + w.Weathers.RainIntensity*50
+				w.Moisture[y][x] = 20.0 + w.Weathers.RainIntensity*50 + w.Weathers.Temperature
 			} else {
-				w.Moisture[y][x] = w.Moisture[y][x]*0.85 + w.Weathers.RainIntensity*2
+				w.Moisture[y][x] = (w.Moisture[y][x]*0.85 + w.Weathers.RainIntensity*2) * (w.Weathers.Temperature / 25.0)
 			}
 		}
 	}
