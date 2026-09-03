@@ -33,7 +33,7 @@ func randomWorld(seed int64, width, height int) *World {
 	generateMoisture(w)
 
 	// Sheeps
-	generateSheep(w, 9)
+	generateSheep(w, 2)
 	return w
 }
 

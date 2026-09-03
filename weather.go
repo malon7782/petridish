@@ -19,8 +19,8 @@ func generateWeather(w *World) {
 
 func (w *World) simulateWeather() {
 	// Temperature
-	w.Weathers.Temperature += w.Rng.Float64()*6.0 - 2.99 // temperature change ~ [-2.99, 3.01)
-	w.Logger.Add(w.Day, fmt.Sprintf("T: %d", int(w.Weathers.Temperature)))
+	// w.Weathers.Temperature += w.Rng.Float64()*3.0 - 1.49 // temperature change ~ [-1.49, 1.51)
+	// w.Logger.Add(w.Day, fmt.Sprintf("T: %d", int(w.Weathers.Temperature)))
 
 	// Rain
 	// - roll the duration

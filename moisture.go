@@ -15,10 +15,23 @@ func generateMoisture(w *World) {
 func (w *World) updateMoisture() {
 	for y := 0; y < w.Height; y++ {
 		for x := 0; x < w.Width; x++ {
-			if w.Lakes[y][x].Height > 0.5 { // lakes deeper than 0.5 contribute humidity
+			if w.Lakes[y][x].Height > 0.5 {
 				w.Moisture[y][x] = 20.0 + w.Weathers.RainIntensity*50 + w.Weathers.Temperature
 			} else {
-				w.Moisture[y][x] = (w.Moisture[y][x]*0.85 + w.Weathers.RainIntensity*2) * (w.Weathers.Temperature / 25.0)
+				retention := 0.95 - (w.Weathers.Temperature * 0.005)
+
+				if retention > 0.99 {
+					retention = 0.99
+				}
+				if retention < 0.50 {
+					retention = 0.50
+				}
+
+				w.Moisture[y][x] = w.Moisture[y][x]*retention + w.Weathers.RainIntensity*8
+			}
+
+			if w.Moisture[y][x] > 100.0 {
+				w.Moisture[y][x] = 100.0
 			}
 		}
 	}
