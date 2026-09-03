@@ -51,23 +51,6 @@ func generateLake(w *World) {
 	}
 }
 
-// this is suitable for simulating rain. maybe it will live in rain.go or weather.go
-// in the future.
-func cumLake(w *World, numLakes int) {
-	for i := 0; i < numLakes; i++ {
-		randomy := w.Rng.Intn(w.Height)
-		randomx := w.Rng.Intn(w.Width)
-
-		w.Lakes[randomy][randomx] = &Lake{
-			Height: float64(1),
-		}
-		// this is important. we need to dig down a unit depth  so that we can
-		//* place water. in case different lake gen functions access the same [][]*Mounatin
-		// block, make sure that the height of that block is equal or greater than -1,
-		w.Map[randomy][randomx].Height -= 1
-	}
-}
-
 // generateBFSLake() takes a World instance and a `size` integar, then generate a approximately
 // circuler lake on w.Lakes. the radius is not guaranteed (actually, intended to not guarantee)
 // to reach `size`.

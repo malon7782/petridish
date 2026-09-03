@@ -34,7 +34,7 @@ func (w *World) simulateGrass() {
 					roll := float64(w.Rng.Intn(9)) + 1
 
 					// influenced by both humidity and height
-					p := (0.2 * w.Moisture[y][x]) / float64((h)*(h))
+					p := (0.3 * w.Moisture[y][x]) / float64((h+1)*(h+1))
 
 					if p > roll {
 						w.Grass[y][x] = true

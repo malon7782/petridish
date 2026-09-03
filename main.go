@@ -49,7 +49,7 @@ func main() {
 
 	seed := flag.Int64("seed", time.Now().UnixNano(), "Seed of the world")
 	maxDays := flag.Int("days", 1000, "Number of days")
-	tickMs := flag.Int("tick", 200, "Rate of time")
+	tickMs := flag.Int("tick", 100, "Rate of time")
 	flag.Parse()
 
 	fmt.Print("\033[2J")

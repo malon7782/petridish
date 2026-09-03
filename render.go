@@ -61,6 +61,9 @@ func (w *World) renderWorld() {
 		}
 	}
 
+	// decoration
+	w.decorateGrid(grid)
+
 	// initialize output
 	fmt.Printf("Day: %d\n", w.Day)
 	var sb strings.Builder
