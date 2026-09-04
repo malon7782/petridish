@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 type Lake struct {
 	Height float64
@@ -37,92 +40,72 @@ func (l *Lake) Color() string {
 	return ColorStr
 }
 
-func isFlatDry(w *World, y, x int) bool {
-	return w.Map[y][x].Height <= 1 && w.Lakes[y][x].Height == 0.0
-}
 // a river starts from one of the boundaries
 // should start at flat ground
 // find longest path
 func generateRiver(w *World) {
-	// a river source is a random flat boundary cell that is not water yet.
-	findsrc := func(w *World) pair {
+	// a river source is a random boundary cell
+	find_endpoints := func() []pair {
 		starts := []pair{}
 		for i := 0; i < w.Height; i++ {
 			delta := 1
 			if 1 < i && i+1 < w.Height { delta = w.Width-1 }
 			for j := 0; j < w.Width; j += delta {
-				if isFlatDry(w, i, j) { starts = append(starts, pair{y: i, x: j}) }
+				if w.Map[i][j].Height <= 4 {
+					starts = append(starts, pair{y: i, x: j})
+				}
 			}
 		}
-		if len(starts) == 0 {
-			return pair{y: -1, x: -1}
-		}
-		return starts[w.Rng.Intn(len(starts))]
+		return starts
 	}
-	src := findsrc(w)
-	generateRiverAt(w, src.x, src.y)
-}
-
-func _whichside(w *World, p pair) int {
-	switch {
-	case p.y == 0:
-		return 0
-	case p.y == w.Height-1:
-		return 1
-	case p.x == 0:
-		return 2
-	case p.x == w.Width-1:
-		return 3
-	}
-	return -1
-}
-
-func _rivercost(w *World, y, x int) float64 {
-	if w.Lakes[y][x].Height > 0.0 {
-		return 0.5
-	}
-	h := w.Map[y][x].Height
-	cost := 1.0
-	switch {
-	case h <= 1:
-	case h == 2:
-		cost += 6
-	case h == 3:
-		cost += 20
-	default:
-		cost += 60 * float64(h-3)
-	}
-	// running along the map edge looks odd, so nudge the river inland
-	if _whichside(w, pair{y: y, x: x}) >= 0 {
-		cost += 2
-	}
-	// noise makes the river wander on flats
-	return cost + 1.5*w.Rng.Float64()
-}
-
-// a river has a source. it flows from its source all the way into
-// a mountain or the occean.
-// the occean for now simply means outside the map
-//
-// to describe the gen algorithm:
-//   - dijkstra from the source. stepping onto a cell costs more the higher it is,
-//     plus a bit of noise so the river meanders
-//   - among the flat boundary cells on other sides, pick the mouth with the longest route
-//   - fill the route with water. depth and width grow towards the mouth
-//
-// the algo ends when no boundary cell on another side is reachable
-func generateRiverAt(w *World, srcx, srcy int) {
-	src := pair{y: srcy, x: srcx}
-	if src.y < 0 {
+	endpoints := find_endpoints()
+	if len(endpoints) < 2 {
 		return
 	}
-	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+	w.Rng.Shuffle(len(endpoints), func(i, j int) {
+		endpoints[i], endpoints[j] = endpoints[j], endpoints[i]
+	})
+	// sort by distance to corners
+	// prefer corners
+	cornerDist := func(p pair) int {
+		dx := min(p.x, w.Width-1-p.x)
+		dy := min(p.y, w.Height-1-p.y)
+		return dx + dy
+	}
+	slices.SortFunc(endpoints, func(a, b pair) int {
+		return cornerDist(a) - cornerDist(b)
+	})
+
+
+	start := endpoints[0]
+	end := endpoints[1]
+	Dist := func(a, b pair) int {
+		return abs(a.x - b.x) + abs(b.y - a.y)
+	}
+	for i := range(endpoints[2:]) {
+		if Dist(endpoints[2+i], start) > Dist(end, start) {
+			end = endpoints[2+i]
+		}
+	}
+
+	generateRiverBetween(w, start, end)
+}
+
+// use a slightly drunken walker
+// penalize:
+// - drifting away from the end terminal point 
+// - going from a lower cell to a higher cell
+func _river_cost(w *World, from, to, end pair) float64 {
+	height := w.Map[from.y][from.x].Height - w.Map[to.y][to.x].Height
+	drift := abs(to.x - end.x) + abs(to.y - end.y)
+	return float64(height*70 + drift*30)
+}
+
+func generateRiverBetween(w *World, start, end pair) {
 	inMap := func(y, x int) bool {
 		return y >= 0 && x >= 0 && y < w.Height && x < w.Width
 	}
-
-	// dijkstra. the map is tiny, so a plain O(n^2) scan for the next cell is
-	// perfectly fine and saves us a heap.
+	// why does Go not have a usable heap?
 	n := w.Width * w.Height
 	id := func(p pair) int { return p.y*w.Width + p.x }
 	dist := make([]float64, n)
@@ -133,7 +116,8 @@ func generateRiverAt(w *World, srcx, srcy int) {
 		dist[i] = -1
 		prev[i] = -1
 	}
-	dist[id(src)] = 0
+	dist[id(start)] = 0
+	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 
 	for {
 		cur := -1
@@ -159,7 +143,7 @@ func generateRiverAt(w *World, srcx, srcy int) {
 			if done[nxt] {
 				continue
 			}
-			c := dist[cur] + _rivercost(w, ny, nx)
+			c := dist[cur] + _river_cost(w, pair{y: cy, x: cx}, pair{y: ny, x: nx}, end)
 			if dist[nxt] < 0 || c < dist[nxt] {
 				dist[nxt] = c
 				steps[nxt] = steps[cur] + 1
@@ -168,34 +152,9 @@ func generateRiverAt(w *World, srcx, srcy int) {
 		}
 	}
 
-	// the mouth: a flat boundary cell on another side, reached by the longest
-	// route. ties are broken randomly.
-	srcSide := _whichside(w, src)
-	mouth := -1
-	for y := 0; y < w.Height; y++ {
-		for x := 0; x < w.Width; x++ {
-			p := pair{y: y, x: x}
-			side := _whichside(w, p)
-			if side < 0 || side == srcSide || !isFlatDry(w, y, x) {
-				continue
-			}
-			i := id(p)
-			if dist[i] < 0 {
-				continue
-			}
-			if mouth < 0 || steps[i] > steps[mouth] ||
-				(steps[i] == steps[mouth] && w.Rng.Intn(2) == 0) {
-				mouth = i
-			}
-		}
-	}
-	if mouth < 0 {
-		return
-	}
-
-	// walk back from the mouth to the source
+	// walk back from the end to the start
 	route := []pair{}
-	for i := mouth; i >= 0; i = prev[i] {
+	for i := id(end); i >= 0; i = prev[i] {
 		route = append(route, pair{y: i / w.Width, x: i % w.Width})
 	}
 	for i, j := 0, len(route)-1; i < j; i, j = i+1, j-1 {
@@ -214,7 +173,6 @@ func generateRiverAt(w *World, srcx, srcy int) {
 		w.Lakes[y][x] = &Lake{Height: h}
 	}
 
-	// ai-assisted
 	// the height of the water grows along the route, so the river gets a
 	// brighter color near the source and a deeper one near the mouth.
 	// keep the source above the 0.2 threshold so the whole river renders.
@@ -232,9 +190,9 @@ func generateRiverAt(w *World, srcx, srcy int) {
 		banks := 0
 		switch {
 		case t >= 0.75:
-			banks = 2
+			banks = 5
 		case t >= 0.35:
-			banks = 1
+			banks = 4
 		}
 		for k := 0; k < banks; k++ {
 			d := dirs4[w.Rng.Intn(len(dirs4))]
