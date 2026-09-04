@@ -19,6 +19,7 @@ func randomWorld(seed int64, width, height int) *World {
 
 	// Lakes
 	generateLake(w) // actually, to initialize w.Lakes
+	generateRiver(w)
 
 	generateBFSLake(w, 9)
 	generateBFSLake(w, 9)
