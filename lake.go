@@ -16,6 +16,10 @@ type pair struct {
 	x int
 }
 
+type RGB struct {
+	r, g, b int
+}
+
 func (l *Lake) Icon() byte {
 	if l == nil {
 		return '%'
@@ -28,16 +32,21 @@ func (l *Lake) Color() string {
 		return ""
 	}
 
-	ColorStr := ""
+	deep := RGB{r: 0, g: 95, b: 255}
+	light := RGB{r: 95, g: 215, b: 255}
 
-	if l.Height >= 1 {
-		ColorStr = fmt.Sprintf("\033[38;5;%dm", 33)
-	} else if l.Height >= 0.6 {
-		ColorStr = fmt.Sprintf("\033[38;5;%dm", 39)
-	} else if l.Height >= 0.2 {
-		ColorStr = fmt.Sprintf("\033[38;5;%dm", 45)
+	if l.Height < 0.2 { return "" }
+	// assumes lake.Height <= 1
+	// Needswork: confirm if we are happy with lake height being <= 1
+	t := (l.Height - 0.2) / 0.8
+
+	c := RGB {
+		r: int(float64(deep.r - light.r) * t + float64(light.r)),
+		g: int(float64(deep.g - light.g) * t + float64(light.g)),
+		b: int(float64(deep.b - light.b) * t + float64(light.b)),
 	}
-	return ColorStr
+
+	return fmt.Sprintf("\033[38;2;%d;%d;%dm", c.r, c.g, c.b)
 }
 
 // a river starts from one of the boundaries
