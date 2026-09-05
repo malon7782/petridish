@@ -49,7 +49,9 @@ func generateRiver(w *World) {
 		starts := []pair{}
 		for i := 0; i < w.Height; i++ {
 			delta := 1
-			if 1 < i && i+1 < w.Height { delta = w.Width-1 }
+			if 1 < i && i+1 < w.Height {
+				delta = w.Width - 1
+			}
 			for j := 0; j < w.Width; j += delta {
 				if w.Map[i][j].Height <= 4 {
 					starts = append(starts, pair{y: i, x: j})
@@ -76,13 +78,12 @@ func generateRiver(w *World) {
 		return cornerDist(a) - cornerDist(b)
 	})
 
-
 	start := endpoints[0]
 	end := endpoints[1]
 	Dist := func(a, b pair) int {
-		return abs(a.x - b.x) + abs(b.y - a.y)
+		return abs(a.x-b.x) + abs(b.y-a.y)
 	}
-	for i := range(endpoints[2:]) {
+	for i := range endpoints[2:] {
 		if Dist(endpoints[2+i], start) > Dist(end, start) {
 			end = endpoints[2+i]
 		}
@@ -93,11 +94,11 @@ func generateRiver(w *World) {
 
 // use a slightly drunken walker
 // penalize:
-// - drifting away from the end terminal point 
+// - drifting away from the end terminal point
 // - going from a lower cell to a higher cell
 func _river_cost(w *World, from, to, end pair) float64 {
 	height := w.Map[from.y][from.x].Height - w.Map[to.y][to.x].Height
-	drift := abs(to.x - end.x) + abs(to.y - end.y)
+	drift := abs(to.x-end.x) + abs(to.y-end.y)
 	return float64(height*70 + drift*30)
 }
 

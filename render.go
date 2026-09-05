@@ -65,7 +65,7 @@ func (w *World) renderWorld() {
 	w.decorateGrid(grid)
 
 	// initialize output
-	fmt.Printf("Day: %d\n", w.Day)
+	fmt.Printf("Day: %d Temperature: %.2f Rain: %d\n", w.Day, w.Weathers.Temperature, w.Weathers.RainLeft)
 	var sb strings.Builder
 	sb.Grow(w.Width * w.Height * 20)
 	events := w.Logger.Events
