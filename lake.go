@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"slices"
 )
 
 type Lake struct {
+	Phase    float64
+	Position int
 	Height   float64
 	IsFrozen bool
 }
@@ -30,6 +33,9 @@ func (l *Lake) Icon() byte {
 		return '#'
 	}
 
+	if math.Sin(l.Phase) > 0.7 {
+		return '-'
+	}
 	return '~'
 }
 
@@ -52,6 +58,7 @@ func (l *Lake) Color() string {
 	// assumes lake.Height <= 1
 	// Needswork: confirm if we are happy with lake height being <= 1
 	t := (l.Height - 0.2) / 0.8
+	t = min(1, max(0, t+0.2*math.Sin(l.Phase)))
 
 	c := RGB{
 		r: int(float64(deep.r-light.r)*t + float64(light.r)),
@@ -200,6 +207,7 @@ func generateRiverBetween(w *World, start, end pair) {
 	// brighter color near the source and a deeper one near the mouth.
 	// keep the source above the 0.2 threshold so the whole river renders.
 	const srcDepth, mouthDepth = 0.35, 1.0
+	position := 0
 	for i, p := range route {
 		t := 0.0
 		if len(route) > 1 {
@@ -207,6 +215,8 @@ func generateRiverBetween(w *World, start, end pair) {
 		}
 		depth := srcDepth + (mouthDepth-srcDepth)*t
 		fill(p.y, p.x, depth)
+		w.Lakes[p.y][p.x].Position = position
+		position++
 
 		// widen the river downstream. banks are a bit shallower than the
 		// channel, and the further downstream, the more banks we flood.
@@ -226,6 +236,8 @@ func generateRiverBetween(w *World, start, end pair) {
 			if w.Rng.Intn(3) == 0 {
 				continue
 			}
+			w.Lakes[p.y][p.x].Position = position
+			position++
 			fill(ny, nx, depth*0.7)
 		}
 	}
@@ -243,6 +255,10 @@ func generateLake(w *World) {
 			w.Lakes[y][x] = &Lake{Height: 0.0}
 		}
 	}
+}
+
+func (w *World) simulateRiver() {
+	// do nothing
 }
 
 // generateBFSLake() takes a World instance and a `size` integar, then generate a approximately
@@ -311,7 +327,7 @@ func generateBFSLake(w *World, size int) {
 						queue = append(queue, pair{ny, nx})
 					}
 				}
-				w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0)}
+				w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0), Position: w.Rng.Intn(w.Height*w.Width)}
 			}
 			w.Map[cur.y][cur.x].Height -= 1
 		}

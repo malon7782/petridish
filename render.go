@@ -26,10 +26,11 @@ func (w *World) renderWorld() {
 				Color: w.Map[y][x].Color(),
 			}
 			// lake
-			if w.Lakes != nil && w.Lakes[y][x] != nil &&
-				w.Lakes[y][x].Height > 0.2 { // Needswork: this check violates the architecture principle,
+			if w.Lakes != nil {
+				w.drawLakeFlow()
+			}
+			if w.Lakes[y][x].Height > 0.2 { // Needswork: this check violates the architecture principle,
 				// but now we're too lazy to refactor it.
-
 				grid[y][x] = Cell{
 					Char:  w.Lakes[y][x].Icon(),
 					Color: w.Lakes[y][x].Color(),
