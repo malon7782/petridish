@@ -9,21 +9,21 @@ import (
 // Needswork: Mountain should implement Terrain interface.
 
 type Mountain struct {
-	Height   int
+	Height   float64
 	ColorStr string
 }
 
 func (m *Mountain) Icon() byte {
-	if m.Height == 0 {
+	if m.Height == 0.0 {
 		return '#'
 	}
-	if m.Height == 1 {
+	if m.Height <= 1.0 {
 		return '+'
 	}
-	if m.Height > 9 {
+	if m.Height >= 9.0 {
 		return '9'
 	}
-	return byte('0' + m.Height)
+	return byte('0' + int(math.Ceil(m.Height)))
 }
 
 func (m *Mountain) Color() string {
@@ -238,7 +238,7 @@ func generateMountain(w *World, numPeaks int) {
 			}
 
 			w.Map[y][x] = &Mountain{
-				Height:   height,
+				Height:   float64(height),
 				ColorStr: fmt.Sprintf("\x1b[38;2;%d;%d;%dm", ColorCode.R, ColorCode.G, ColorCode.B),
 			}
 		}

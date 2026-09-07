@@ -26,10 +26,11 @@ var (
 )
 
 func (w *World) decoLightning(g [][]Cell, Intensity float64) {
+	// if lightning is not going on, roll one.
 	if lightningRolled == false && w.Weathers.RainLeft >= 4 &&
 		w.Weathers.RainIntensity > 0.4 {
 		if roll := w.Rng.Intn(10); roll > 5 {
-			lightningDays = 3
+			lightningDays = 3 // lasts for 3 days
 			lightningRolled = true
 		}
 	}
@@ -40,6 +41,7 @@ func (w *World) decoLightning(g [][]Cell, Intensity float64) {
 			lightningDays = 0
 			return
 		}
+		// gradiently modify the colors
 		v := 255 - int(float64(3-lightningDays)/2*(255-64))
 		c := fmt.Sprintf("\033[38;2;%d;%d;%dm", v, v, v)
 		for y := range g {

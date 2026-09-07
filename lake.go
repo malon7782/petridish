@@ -121,7 +121,7 @@ func generateRiver(w *World) {
 func _river_cost(w *World, from, to, end pair) float64 {
 	height := w.Map[from.y][from.x].Height - w.Map[to.y][to.x].Height
 	drift := abs(to.x-end.x) + abs(to.y-end.y)
-	return float64(height*70 + drift*30)
+	return height*70.0 + float64(drift*30)
 }
 
 func generateRiverBetween(w *World, start, end pair) {
@@ -289,7 +289,7 @@ func generateBFSLake(w *World, size int) {
 	}
 	queue := []pair{pair{y: inity, x: initx}}
 
-	maxheight := 2
+	maxheight := 2.0
 	if isMntTop {
 		size /= 2
 		maxheight = 9
