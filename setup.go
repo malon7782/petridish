@@ -22,8 +22,8 @@ func randomWorld(seed int64, width, height int) *World {
 	generateRiver(w)
 	generateRiver(w)
 
-	// generateBFSLake(w, 9)
-	// generateBFSLake(w, 9)
+	generateBFSLake(w, 9)
+	generateBFSLake(w, 9)
 
 	// Weather
 	generateWeather(w)

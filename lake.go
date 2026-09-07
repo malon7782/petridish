@@ -203,15 +203,13 @@ func generateRiverBetween(w *World, start, end pair) {
 	// the height of the water grows along the route, so the river gets a
 	// brighter color near the source and a deeper one near the mouth.
 	// keep the source above the 0.2 threshold so the whole river renders.
-	const srcDepth, mouthDepth = 0.35, 1.0
 	position := 0
 	for i, p := range route {
 		t := 0.0
 		if len(route) > 1 {
 			t = float64(i) / float64(len(route)-1)
 		}
-		depth := srcDepth + (mouthDepth-srcDepth)*t
-		dig(p.y, p.x, depth)
+		dig(p.y, p.x)
 		w.Lakes[p.y][p.x].Position = position
 		position++
 
@@ -235,7 +233,7 @@ func generateRiverBetween(w *World, start, end pair) {
 			}
 			w.Lakes[ny][nx].Position = position
 			position++
-			dig(ny, nx, depth*0.7)
+			dig(ny, nx)
 		}
 	}
 }
@@ -254,9 +252,9 @@ func generateLake(w *World) {
 	}
 }
 
-func (w *World) simulateRiver() {
-	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+func (w *World) simulateLake() {
 	var q []pair
+	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	for y := range w.Height {
 		for x := range w.Width {
 			l := w.Lakes[y][x]
@@ -270,9 +268,6 @@ func (w *World) simulateRiver() {
 			l := w.Lakes[y][x]
 			if l != nil && l.Height > 0.0 {
 				q = append(q, pair{y: y, x: x})
-			}
-			if l.IsSource {
-				src = append(src, l)
 			}
 		}
 	}
@@ -325,9 +320,6 @@ func (w *World) simulateRiver() {
 			l := w.Lakes[i][j]
 			if !l.IsSource { l.Height *= 0.2 }
 		}
-	}
-	for i := range src {
-		src[i].Height = 1.0
 	}
 }
 
