@@ -6,9 +6,9 @@
 
 ## Roadmap  
 
- - v0.1 First playable version, including random moving sheeps  
- - @**v0.2 Mountain generation**  
- - v0.3 River generation & Log system  
+ - v0.1 First playable version, including random moving sheep
+ - v0.2 Mountain generation & log system
+ - **@v0.3 River generation & rain and thunder & landform evolution**
  - v0.4 Basic dynamic simulation (e.g. sheep eats grass)  
  - v0.5 Events  
  - v0.6 Basic Weathers  
@@ -21,7 +21,10 @@
  - architecture
 
  1. Let renderer render. Let simulator simulate.
+ 2. There is only one type of water cell - Lake. 
 
- - other
+ - others
 
- 1. write comments and commit messages. 
+ 1. Write comments and commit messages. 
+ 2. If you are uncertain about how good your code is, create a PR. 
+ Otherwise, feel free to push to `master`.
