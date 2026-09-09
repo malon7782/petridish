@@ -6,8 +6,6 @@ import (
 	"sort"
 )
 
-// Needswork: Mountain should implement Terrain interface.
-
 type Mountain struct {
 	Height float64
 }
@@ -64,7 +62,8 @@ func abs(a int) int {
 	return a
 }
 
-// Needswork: this part is ai-generated. Perhaps we need a better algo?
+// NEEDSWORK: this function is so damn long. can we try to
+// simplify it a bit?
 
 func generateMountain(w *World, numPeaks int) {
 	w.Map = make([][]*Mountain, w.Height)

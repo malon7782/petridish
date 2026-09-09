@@ -18,9 +18,6 @@ type Entity interface {
 	Color() string
 }
 
-// Needswork:
-// type Terrain interface...
-
 type World struct {
 	Width  int
 	Height int
