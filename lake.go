@@ -11,6 +11,7 @@ type Lake struct {
 	Position int
 	Height   float64
 	IsFrozen bool
+	IsSource bool
 }
 
 // helper
@@ -76,12 +77,12 @@ func generateRiver(w *World) {
 	// a river source is a random boundary cell
 	find_endpoints := func() []pair {
 		starts := []pair{}
-		for i := 0; i < w.Height; i++ {
+		for i := 1; i+1 < w.Height; i++ {
 			delta := 1
-			if 1 < i && i+1 < w.Height {
-				delta = w.Width - 1
+			if 1 < i && i+2 < w.Height {
+				delta = w.Width - 2
 			}
-			for j := 0; j < w.Width; j += delta {
+			for j := 1; j+1 < w.Width; j += delta {
 				if w.Map[i][j].Height <= 4 {
 					starts = append(starts, pair{y: i, x: j})
 				}
@@ -118,6 +119,8 @@ func generateRiver(w *World) {
 		}
 	}
 
+	w.Lakes[start.y][start.x].IsSource = true
+	w.Lakes[start.y][start.x].Height = 1.0
 	generateRiverBetween(w, start, end)
 }
 
@@ -131,10 +134,10 @@ func _river_cost(w *World, from, to, end pair) float64 {
 	return height*70.0 + float64(drift*30)
 }
 
+func (w *World) inMap(y, x int) bool {
+	return y >= 0 && x >= 0 && y < w.Height && x < w.Width
+}
 func generateRiverBetween(w *World, start, end pair) {
-	inMap := func(y, x int) bool {
-		return y >= 0 && x >= 0 && y < w.Height && x < w.Width
-	}
 	// why does Go not have a usable heap?
 	n := w.Width * w.Height
 	id := func(p pair) int { return p.y*w.Width + p.x }
@@ -166,7 +169,7 @@ func generateRiverBetween(w *World, start, end pair) {
 		cy, cx := cur/w.Width, cur%w.Width
 		for _, d := range dirs4 {
 			ny, nx := cy+d[0], cx+d[1]
-			if !inMap(ny, nx) {
+			if !w.inMap(ny, nx) {
 				continue
 			}
 			nxt := id(pair{y: ny, x: nx})
@@ -191,16 +194,10 @@ func generateRiverBetween(w *World, start, end pair) {
 		route[i], route[j] = route[j], route[i]
 	}
 
-	fill := func(y, x int, h float64) {
-		if w.Lakes[y][x].Height >= h {
-			return
-		}
-		if w.Lakes[y][x].Height == 0.0 {
+	dig := func(y, x int) {
 			// same trick as cumLake(): dig down a unit so the water has
 			// somewhere to sit. only dig once per cell.
-			w.Map[y][x].Height -= 1
-		}
-		w.Lakes[y][x] = &Lake{Height: h}
+			w.Map[y][x].Height = 0
 	}
 
 	// the height of the water grows along the route, so the river gets a
@@ -214,7 +211,7 @@ func generateRiverBetween(w *World, start, end pair) {
 			t = float64(i) / float64(len(route)-1)
 		}
 		depth := srcDepth + (mouthDepth-srcDepth)*t
-		fill(p.y, p.x, depth)
+		dig(p.y, p.x, depth)
 		w.Lakes[p.y][p.x].Position = position
 		position++
 
@@ -230,15 +227,15 @@ func generateRiverBetween(w *World, start, end pair) {
 		for k := 0; k < banks; k++ {
 			d := dirs4[w.Rng.Intn(len(dirs4))]
 			ny, nx := p.y+d[0], p.x+d[1]
-			if !inMap(ny, nx) || w.Map[ny][nx].Height > 1 || w.Lakes[ny][nx].Height > 0.0 {
+			if !w.inMap(ny, nx) || w.Map[ny][nx].Height > 1 || w.Lakes[ny][nx].Height > 0.0 {
 				continue
 			}
 			if w.Rng.Intn(3) == 0 {
 				continue
 			}
-			w.Lakes[p.y][p.x].Position = position
+			w.Lakes[ny][nx].Position = position
 			position++
-			fill(ny, nx, depth*0.7)
+			dig(ny, nx, depth*0.7)
 		}
 	}
 }
@@ -258,7 +255,80 @@ func generateLake(w *World) {
 }
 
 func (w *World) simulateRiver() {
-	// do nothing
+	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+	var q []pair
+	for y := range w.Height {
+		for x := range w.Width {
+			l := w.Lakes[y][x]
+			if l.IsSource {
+				l.Height += 2.0
+			}
+		}
+	}
+	for y := range w.Height {
+		for x := range w.Width {
+			l := w.Lakes[y][x]
+			if l != nil && l.Height > 0.0 {
+				q = append(q, pair{y: y, x: x})
+			}
+			if l.IsSource {
+				src = append(src, l)
+			}
+		}
+	}
+
+	type Type struct {
+		diff float64
+		coor pair
+	}
+
+	delta := make([][]float64, w.Height)
+	for i := 0; i < w.Height; i++ { delta[i] = make([]float64, w.Width) }
+	for _, cur := range(q) {
+		l := w.Lakes[cur.y][cur.x]
+		var nb []Type
+		for _, d := range(dirs4) {
+			nxt := pair{y: cur.y+d[0], x: cur.x+d[1]}
+			if !w.inMap(nxt.y, nxt.x) { continue }
+
+			l2 := w.Lakes[nxt.y][nxt.x]
+			curLvl := w.Map[cur.y][cur.x].Height + l.Height
+			nxtLvl := w.Map[nxt.y][nxt.x].Height + l2.Height
+			if curLvl > nxtLvl { nb = append(nb, Type{diff: curLvl - nxtLvl, coor: nxt}) }
+		}
+
+		m := len(nb)
+		if m == 0 { continue }
+		mn := math.Inf(1)
+		s := 0.0
+		for _, n := range(nb) {
+			mn = min(mn, n.diff)
+			s += n.diff
+		}
+		out := min(l.Height, mn/2)
+		for _, n := range(nb) {
+			d := out * n.diff / s
+			delta[cur.y][cur.x] -= d
+			delta[n.coor.y][n.coor.x] += d
+		}
+	}
+
+	for i := 0; i < w.Height; i++ {
+		for j := 0; j < w.Width; j++ { w.Lakes[i][j].Height += delta[i][j] }
+	}
+
+	// finally, to avoid flooding, water should go out of the map, into the occean
+	for i := 0; i < w.Height; i++ {
+		d := 1
+		if 0 < i && i+1 < w.Height { d = w.Width-1 }
+		for j := 0; j < w.Width; j += d {
+			l := w.Lakes[i][j]
+			if !l.IsSource { l.Height *= 0.2 }
+		}
+	}
+	for i := range src {
+		src[i].Height = 1.0
+	}
 }
 
 // generateBFSLake() takes a World instance and a `size` integar, then generate a approximately
@@ -327,7 +397,7 @@ func generateBFSLake(w *World, size int) {
 						queue = append(queue, pair{ny, nx})
 					}
 				}
-				w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0), Position: w.Rng.Intn(w.Height*w.Width)}
+				w.Lakes[cur.y][cur.x] = &Lake{Height: float64(1.0), Position: w.Rng.Intn(w.Height * w.Width)}
 			}
 			w.Map[cur.y][cur.x].Height -= 1
 		}
