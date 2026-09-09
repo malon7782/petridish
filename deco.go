@@ -2,10 +2,19 @@ package main
 
 import "fmt"
 
+/*
+ * deco.go should only contain the functions that affect visual
+ * output _via modifying nothing else but grid [][]Cell_
+ */
+
+// this function will be called every tick.
+
 func (w *World) decorateGrid(g [][]Cell) {
 	w.decoRain(g, w.Weathers.RainIntensity)
 	w.decoLightning(g, w.Weathers.RainIntensity)
 }
+
+// rain decoration
 
 func (w *World) decoRain(g [][]Cell, Intensity float64) {
 	for i := 0; i < int(Intensity*300.0); i++ {
