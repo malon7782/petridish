@@ -7,8 +7,7 @@ import (
 )
 
 type Mountain struct {
-	Height   float64
-	ColorStr string
+	Height float64
 }
 
 func (m *Mountain) Icon() byte {
@@ -25,7 +24,32 @@ func (m *Mountain) Icon() byte {
 }
 
 func (m *Mountain) Color() string {
-	return m.ColorStr
+	type RGB struct{ R, G, B uint8 }
+
+	var rockColors = []RGB{
+		{57, 58, 63},
+		{70, 71, 77},
+		{84, 85, 91},
+		{98, 99, 105},
+		{112, 113, 119},
+		{127, 128, 134},
+		{142, 143, 149},
+		{158, 159, 165},
+		{175, 176, 182},
+		{192, 193, 199},
+	}
+
+	// ground
+	ColorCode := RGB{57, 58, 63}
+	if m.Height > 0 {
+		h := int(math.Floor(m.Height))
+		if h > 9 {
+			h = 9
+		}
+		ColorCode = rockColors[h]
+	}
+
+	return fmt.Sprintf("\x1b[38;2;%d;%d;%dm", ColorCode.R, ColorCode.G, ColorCode.B)
 }
 
 // -----------------------------------------------
@@ -211,34 +235,8 @@ func generateMountain(w *World, numPeaks int) {
 				height = 9
 			}
 
-			type RGB struct{ R, G, B uint8 }
-
-			var rockColors = []RGB{
-				{57, 58, 63},
-				{70, 71, 77},
-				{84, 85, 91},
-				{98, 99, 105},
-				{112, 113, 119},
-				{127, 128, 134},
-				{142, 143, 149},
-				{158, 159, 165},
-				{175, 176, 182},
-				{192, 193, 199},
-			}
-
-			// ground
-			ColorCode := RGB{57, 58, 63}
-			if height > 0 {
-				h := height
-				if h > 9 {
-					h = 9
-				}
-				ColorCode = rockColors[h]
-			}
-
 			w.Map[y][x] = &Mountain{
-				Height:   float64(height),
-				ColorStr: fmt.Sprintf("\x1b[38;2;%d;%d;%dm", ColorCode.R, ColorCode.G, ColorCode.B),
+				Height: float64(height),
 			}
 		}
 	}

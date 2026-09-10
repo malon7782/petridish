@@ -1,6 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
+
+/*
+ * deco.go should only contain the functions that affect visual
+ * output _via modifying nothing else but grid [][]Cell_
+ */
+
+// this function will be called every tick.
 
 /*
  * deco.go should only contain the functions that affect visual
@@ -61,4 +71,23 @@ func (w *World) decoLightning(g [][]Cell, Intensity float64) {
 		lightningDays--
 	}
 
+}
+
+func (w *World) drawLakeFlow() {
+	const (
+		wavelength = 8.0 // cells per ripple
+		period     = 6.0 // ticks per ripple
+		acc        = 1.0 // faster at the mouth
+	)
+	for i, row := range w.Lakes {
+		for j, _ := range row {
+			l := w.Lakes[i][j]
+			if l == nil || l.Height == 0.0 {
+				continue
+			}
+			speed := 1.0
+			phase := float64(l.Position)/wavelength + float64(w.Day)*speed/period
+			l.Phase = 2 * math.Pi * phase
+		}
+	}
 }

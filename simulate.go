@@ -9,6 +9,7 @@ func (w *World) simulateWorld() {
 	w.simulateWeather()
 	w.updateMoisture()
 	w.simulateGrass()
+	w.simulateLake()
 
 	w.Day += 1
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -26,10 +27,11 @@ func (w *World) renderWorld() {
 				Color: w.Map[y][x].Color(),
 			}
 			// lake
-			if w.Lakes != nil && w.Lakes[y][x] != nil &&
-				w.Lakes[y][x].Height > 0.2 { // Needswork: this check violates the architecture principle,
+			if w.Lakes != nil {
+				w.drawLakeFlow()
+			}
+			if w.Lakes[y][x].Height > 0.2 { // Needswork: this check violates the architecture principle,
 				// but now we're too lazy to refactor it.
-
 				grid[y][x] = Cell{
 					Char:  w.Lakes[y][x].Icon(),
 					Color: w.Lakes[y][x].Color(),
@@ -90,4 +92,14 @@ func (w *World) renderWorld() {
 		sb.WriteByte('\n')
 	}
 	fmt.Print(sb.String())
+
+	if os.Getenv("PETRIDISH_DEBUG") != "" {
+		for y:=0;y<w.Height;y++{
+			for x:=0;x<w.Width;x++{
+				fmt.Fprintf(os.Stderr, "%.0f ", w.Map[y][x].Height + w.Lakes[y][x].Height)
+			}
+			fmt.Fprintf(os.Stderr, "\n")
+		}
+		fmt.Fprintf(os.Stderr, "\n")
+	}
 }
