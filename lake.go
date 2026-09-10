@@ -49,13 +49,13 @@ func (l *Lake) Color() string {
 		return ""
 	}
 
-	if l.IsFrozen == true {
-		return fmt.Sprintf("\033[38;5;%dm", 153)
-	}
-
 	deep := RGB{r: 0, g: 95, b: 255}
 	light := RGB{r: 95, g: 215, b: 255}
 
+	if l.IsFrozen == true {
+		light = RGB{r: 245, g: 250, b: 255}
+		deep = RGB{r: 130, g: 240, b: 255}
+	}
 	// assumes lake.Height <= 1
 	// Needswork: confirm if we are happy with lake height being <= 1
 	t := (l.Height - 0.2) / 0.8
@@ -195,9 +195,9 @@ func generateRiverBetween(w *World, start, end pair) {
 	}
 
 	dig := func(y, x int) {
-			// same trick as cumLake(): dig down a unit so the water has
-			// somewhere to sit. only dig once per cell.
-			w.Map[y][x].Height = 0
+		// same trick as cumLake(): dig down a unit so the water has
+		// somewhere to sit. only dig once per cell.
+		w.Map[y][x].Height = 0
 	}
 
 	// the height of the water grows along the route, so the river gets a
@@ -258,11 +258,39 @@ func (w *World) simulateLake() {
 	for y := range w.Height {
 		for x := range w.Width {
 			l := w.Lakes[y][x]
-			if l.IsSource {
-				l.Height += 2.0
+
+			// lake water level rises when it rains
+
+			if w.Weathers.Temperature > 0 {
+				if roll := w.Rng.Intn(10); roll > 7 {
+					l.IsFrozen = false
+				}
+
+				l.Height -= w.Weathers.Temperature * 0.0004
+				if l.Height < 0 {
+					l.Height = 0
+				}
+			} else {
+				if roll := w.Rng.Intn(10); roll > 7 {
+					l.IsFrozen = true
+				}
 			}
+
+			if l.IsFrozen {
+				// empty
+			} else {
+				l.Height += w.Weathers.RainIntensity * 0.07
+			}
+			// source contribute water as long as not frozen
+			if l.IsSource && !l.IsFrozen {
+				l.Height += 3.0
+			}
+
 		}
 	}
+
+	// flow logic
+
 	for y := range w.Height {
 		for x := range w.Width {
 			l := w.Lakes[y][x]
@@ -278,30 +306,38 @@ func (w *World) simulateLake() {
 	}
 
 	delta := make([][]float64, w.Height)
-	for i := 0; i < w.Height; i++ { delta[i] = make([]float64, w.Width) }
-	for _, cur := range(q) {
+	for i := 0; i < w.Height; i++ {
+		delta[i] = make([]float64, w.Width)
+	}
+	for _, cur := range q {
 		l := w.Lakes[cur.y][cur.x]
 		var nb []Type
-		for _, d := range(dirs4) {
-			nxt := pair{y: cur.y+d[0], x: cur.x+d[1]}
-			if !w.inMap(nxt.y, nxt.x) { continue }
+		for _, d := range dirs4 {
+			nxt := pair{y: cur.y + d[0], x: cur.x + d[1]}
+			if !w.inMap(nxt.y, nxt.x) {
+				continue
+			}
 
 			l2 := w.Lakes[nxt.y][nxt.x]
 			curLvl := w.Map[cur.y][cur.x].Height + l.Height
 			nxtLvl := w.Map[nxt.y][nxt.x].Height + l2.Height
-			if curLvl > nxtLvl { nb = append(nb, Type{diff: curLvl - nxtLvl, coor: nxt}) }
+			if curLvl > nxtLvl {
+				nb = append(nb, Type{diff: curLvl - nxtLvl, coor: nxt})
+			}
 		}
 
 		m := len(nb)
-		if m == 0 { continue }
+		if m == 0 {
+			continue
+		}
 		mn := math.Inf(1)
 		s := 0.0
-		for _, n := range(nb) {
+		for _, n := range nb {
 			mn = min(mn, n.diff)
 			s += n.diff
 		}
 		out := min(l.Height, mn/2)
-		for _, n := range(nb) {
+		for _, n := range nb {
 			d := out * n.diff / s
 			delta[cur.y][cur.x] -= d
 			delta[n.coor.y][n.coor.x] += d
@@ -309,18 +345,25 @@ func (w *World) simulateLake() {
 	}
 
 	for i := 0; i < w.Height; i++ {
-		for j := 0; j < w.Width; j++ { w.Lakes[i][j].Height += delta[i][j] }
+		for j := 0; j < w.Width; j++ {
+			w.Lakes[i][j].Height += delta[i][j]
+		}
 	}
 
 	// finally, to avoid flooding, water should go out of the map, into the occean
 	for i := 0; i < w.Height; i++ {
 		d := 1
-		if 0 < i && i+1 < w.Height { d = w.Width-1 }
+		if 0 < i && i+1 < w.Height {
+			d = w.Width - 1
+		}
 		for j := 0; j < w.Width; j += d {
 			l := w.Lakes[i][j]
-			if !l.IsSource { l.Height *= 0.2 }
+			if !l.IsSource {
+				l.Height *= 0.2
+			}
 		}
 	}
+
 }
 
 // generateBFSLake() takes a World instance and a `size` integar, then generate a approximately
