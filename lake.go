@@ -14,17 +14,6 @@ type Lake struct {
 	IsSource bool
 }
 
-// helper
-
-type pair struct {
-	y int
-	x int
-}
-
-type RGB struct {
-	r, g, b int
-}
-
 func (l *Lake) Icon() byte {
 	if l == nil {
 		return '%'
@@ -134,9 +123,6 @@ func _river_cost(w *World, from, to, end pair) float64 {
 	return height*70.0 + float64(drift*30)
 }
 
-func (w *World) inMap(y, x int) bool {
-	return y >= 0 && x >= 0 && y < w.Height && x < w.Width
-}
 func generateRiverBetween(w *World, start, end pair) {
 	// why does Go not have a usable heap?
 	n := w.Width * w.Height
@@ -150,8 +136,6 @@ func generateRiverBetween(w *World, start, end pair) {
 		prev[i] = -1
 	}
 	dist[id(start)] = 0
-	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-
 	for {
 		cur := -1
 		for i := 0; i < n; i++ {
@@ -254,7 +238,6 @@ func generateLake(w *World) {
 
 func (w *World) simulateLake() {
 	var q []pair
-	dirs4 := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	for y := range w.Height {
 		for x := range w.Width {
 			l := w.Lakes[y][x]
@@ -380,8 +363,6 @@ func (w *World) simulateLake() {
 // It is implemented via BFS algo, as the names suggests.
 
 func generateBFSLake(w *World, size int) {
-	dirs := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-
 	count := 0
 	inity := w.Rng.Intn(w.Height)
 	initx := w.Rng.Intn(w.Width)
@@ -420,7 +401,7 @@ func generateBFSLake(w *World, size int) {
 		for i := 0; i < sz; i++ {
 			cur := queue[0]
 			queue = queue[1:]
-			for _, d := range dirs {
+			for _, d := range dirs4 {
 				ny := cur.y + d[0]
 				nx := cur.x + d[1]
 				if ny >= 0 && nx >= 0 && ny < w.Height && nx < w.Width &&

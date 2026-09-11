@@ -55,13 +55,6 @@ func (m *Mountain) Color() string {
 // -----------------------------------------------
 // world init related
 
-func abs(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
-}
-
 // NEEDSWORK: this function is so damn long. can we try to
 // simplify it a bit?
 
