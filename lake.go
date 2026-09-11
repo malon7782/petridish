@@ -14,6 +14,13 @@ type Lake struct {
 	IsSource bool
 }
 
+func (l *Lake) Level() float64       { return l.Height }
+func (l *Lake) SetLevel(v float64)   { l.Height = v }
+func (l *Lake) Frozen() bool         { return l.IsFrozen }
+func (l *Lake) SetFrozen(v bool)     { l.IsFrozen = v }
+func (l *Lake) FreezePoint() float64 { return 0 }
+func (l *Lake) EvapRate() float64    { return 0.0004 }
+
 func (l *Lake) Icon() byte {
 	if l == nil {
 		return '%'
@@ -238,32 +245,28 @@ func generateLake(w *World) {
 
 func (w *World) simulateLake() {
 	var q []pair
+
+	// read/write grid instead
+	grid := make([][]Liquid, w.Height) // performance overhead?
+	for y := range grid {
+		grid[y] = make([]Liquid, w.Width)
+		for x := range grid[y] {
+			grid[y][x] = w.Lakes[y][x]
+		}
+	}
+
+	handleLiquidEvaporation(grid, w)
+
+	// this part of logic is unique for type Lake, so no need to migrate
 	for y := range w.Height {
 		for x := range w.Width {
 			l := w.Lakes[y][x]
 
 			// lake water level rises when it rains
-
-			if w.Weathers.Temperature > 0 {
-				if roll := w.Rng.Intn(10); roll > 7 {
-					l.IsFrozen = false
-				}
-
-				l.Height -= w.Weathers.Temperature * 0.0004
-				if l.Height < 0 {
-					l.Height = 0
-				}
-			} else {
-				if roll := w.Rng.Intn(10); roll > 7 {
-					l.IsFrozen = true
-				}
-			}
-
-			if l.IsFrozen {
-				// empty
-			} else {
+			if !l.IsFrozen {
 				l.Height += w.Weathers.RainIntensity * 0.07
 			}
+
 			// source contribute water as long as not frozen
 			if l.IsSource && !l.IsFrozen {
 				l.Height += 3.0
@@ -272,7 +275,7 @@ func (w *World) simulateLake() {
 		}
 	}
 
-	// flow logic
+	// flow logic - needs migration
 
 	for y := range w.Height {
 		for x := range w.Width {

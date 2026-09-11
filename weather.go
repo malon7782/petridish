@@ -8,7 +8,7 @@ type Weather struct {
 
 func generateWeather(w *World) {
 	w.Weathers = &Weather{
-		Temperature: -2.0, //baseline
+		Temperature: 15, //baseline
 
 		RainIntensity: 0.0,
 		RainTotal:     0,

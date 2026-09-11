@@ -94,9 +94,9 @@ func (w *World) renderWorld() {
 	fmt.Print(sb.String())
 
 	if os.Getenv("PETRIDISH_DEBUG") != "" {
-		for y:=0;y<w.Height;y++{
-			for x:=0;x<w.Width;x++{
-				fmt.Fprintf(os.Stderr, "%.0f ", w.Map[y][x].Height + w.Lakes[y][x].Height)
+		for y := 0; y < w.Height; y++ {
+			for x := 0; x < w.Width; x++ {
+				fmt.Fprintf(os.Stderr, "%.0f ", w.Map[y][x].Height+w.Lakes[y][x].Height)
 			}
 			fmt.Fprintf(os.Stderr, "\n")
 		}
