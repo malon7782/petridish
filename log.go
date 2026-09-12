@@ -11,5 +11,5 @@ type Logger struct {
 }
 
 func (l *Logger) Add(day int, msg string) {
-	l.Events = append(l.Events, Event{ Day: day, Msg: msg })
+	l.Events = append(l.Events, Event{Day: day, Msg: msg})
 }

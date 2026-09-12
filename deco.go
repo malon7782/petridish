@@ -10,14 +10,7 @@ import (
  * output _via modifying nothing else but grid [][]Cell_
  */
 
-// this function will be called every tick.
-
-/*
- * deco.go should only contain the functions that affect visual
- * output _via modifying nothing else but grid [][]Cell_
- */
-
-// this function will be called every tick.
+// this function will be called every day.
 
 func (w *World) decorateGrid(g [][]Cell) {
 	w.decoRain(g, w.Weathers.RainIntensity)
