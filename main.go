@@ -34,6 +34,9 @@ type World struct {
 	// for the weather status
 	Weathers *Weather
 
+	// at least for now, this array is useful for liquid simulation
+	MaxHeightMap [][]float64
+
 	Logger *Logger
 	Rng    *rand.Rand
 }
@@ -46,7 +49,7 @@ func main() {
 
 	seed := flag.Int64("seed", time.Now().UnixNano(), "Seed of the world")
 	maxDays := flag.Int("days", 1000, "Number of days")
-	tickMs := flag.Int("tick", 200, "Rate of time")
+	tickMs := flag.Int("tick", 50, "Rate of time")
 	flag.Parse()
 
 	fmt.Print("\033[2J")
