@@ -20,7 +20,7 @@ type World struct {
 	// for (semi-)stationary elements of the world
 	Map      [][]*Mountain
 	Lakes    [][]*Lake
-	Grass    [][]bool
+	GrassMap [][]*Grass
 	Moisture [][]float64
 
 	// for the weather status
