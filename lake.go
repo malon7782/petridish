@@ -185,22 +185,25 @@ func generateRiverBetween(w *World, start, end pair) {
 		route[i], route[j] = route[j], route[i]
 	}
 
-	dig := func(y, x int) {
+	fill := func(y, x int, h float64) {
 		// same trick as cumLake(): dig down a unit so the water has
 		// somewhere to sit. only dig once per cell.
 		w.Map[y][x].Height = 0
+		w.Lakes[y][x].Height = h
 	}
 
 	// the height of the water grows along the route, so the river gets a
 	// brighter color near the source and a deeper one near the mouth.
 	// keep the source above the 0.2 threshold so the whole river renders.
 	position := 0
+	const srcDepth, mouthDepth = 0.35, 1.0
 	for i, p := range route {
 		t := 0.0
 		if len(route) > 1 {
 			t = float64(i) / float64(len(route)-1)
 		}
-		dig(p.y, p.x)
+		depth := srcDepth + (mouthDepth-srcDepth)*t
+		fill(p.y, p.x, depth)
 		w.Lakes[p.y][p.x].Position = position
 		position++
 
@@ -224,7 +227,7 @@ func generateRiverBetween(w *World, start, end pair) {
 			}
 			w.Lakes[ny][nx].Position = position
 			position++
-			dig(ny, nx)
+			fill(ny, nx, depth*0.7)
 		}
 	}
 }
