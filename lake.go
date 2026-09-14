@@ -244,8 +244,6 @@ func generateLake(w *World) {
 }
 
 func (w *World) simulateLake() {
-	var q []pair
-
 	// read/write grid instead
 	grid := make([][]Liquid, w.Height) // performance overhead?
 	for y := range grid {
@@ -256,6 +254,7 @@ func (w *World) simulateLake() {
 	}
 
 	handleLiquidEvaporation(grid, w)
+	handleLiquidFlow(w)
 
 	// this part of logic is unique for type Lake, so no need to migrate
 	for y := range w.Height {
@@ -274,82 +273,6 @@ func (w *World) simulateLake() {
 
 		}
 	}
-
-	// flow logic - needs migration
-
-	for y := range w.Height {
-		for x := range w.Width {
-			l := w.Lakes[y][x]
-			if l != nil && l.Height > 0.0 {
-				q = append(q, pair{y: y, x: x})
-			}
-		}
-	}
-
-	type Type struct {
-		diff float64
-		coor pair
-	}
-
-	delta := make([][]float64, w.Height)
-	for i := 0; i < w.Height; i++ {
-		delta[i] = make([]float64, w.Width)
-	}
-	for _, cur := range q {
-		l := w.Lakes[cur.y][cur.x]
-		var nb []Type
-		for _, d := range dirs4 {
-			nxt := pair{y: cur.y + d[0], x: cur.x + d[1]}
-			if !w.inMap(nxt.y, nxt.x) {
-				continue
-			}
-
-			l2 := w.Lakes[nxt.y][nxt.x]
-			curLvl := w.Map[cur.y][cur.x].Height + l.Height
-			nxtLvl := w.Map[nxt.y][nxt.x].Height + l2.Height
-			if curLvl > nxtLvl {
-				nb = append(nb, Type{diff: curLvl - nxtLvl, coor: nxt})
-			}
-		}
-
-		m := len(nb)
-		if m == 0 {
-			continue
-		}
-		mn := math.Inf(1)
-		s := 0.0
-		for _, n := range nb {
-			mn = min(mn, n.diff)
-			s += n.diff
-		}
-		out := min(l.Height, mn/2)
-		for _, n := range nb {
-			d := out * n.diff / s
-			delta[cur.y][cur.x] -= d
-			delta[n.coor.y][n.coor.x] += d
-		}
-	}
-
-	for i := 0; i < w.Height; i++ {
-		for j := 0; j < w.Width; j++ {
-			w.Lakes[i][j].Height += delta[i][j]
-		}
-	}
-
-	// finally, to avoid flooding, water should go out of the map, into the occean
-	for i := 0; i < w.Height; i++ {
-		d := 1
-		if 0 < i && i+1 < w.Height {
-			d = w.Width - 1
-		}
-		for j := 0; j < w.Width; j += d {
-			l := w.Lakes[i][j]
-			if !l.IsSource {
-				l.Height *= 0.2
-			}
-		}
-	}
-
 }
 
 // generateBFSLake() takes a World instance and a `size` integar, then generate a approximately
