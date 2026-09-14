@@ -27,7 +27,7 @@ func (w *World) updateMoisture() {
 					retention = 0.50
 				}
 
-				w.Moisture[y][x] = w.Moisture[y][x]*retention + w.Weathers.RainIntensity*8
+				w.Moisture[y][x] = w.Moisture[y][x]*retention + w.Weathers.RainIntensity*5
 			}
 
 			if w.Moisture[y][x] > 100.0 {

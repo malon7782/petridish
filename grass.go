@@ -10,14 +10,34 @@ type Grass struct {
 	WaterContent float64
 }
 
-func (g *Grass) MoistureContent() float64 { return 60.0 }
+func (g *Grass) MoistureContent() float64 { return g.WaterContent }
 func (g *Grass) IsAlive() bool            { return g.Alive }
 
-const (
-	GrassColor            = "\033[38;5;70m"
-	GrassIcon             = '#'
-	MinLakeHeightForGrass = 0.2
-)
+func (g *Grass) Icon() byte {
+	switch {
+	case g.WaterContent < 10:
+		return '\''
+	case g.WaterContent < 25:
+		return '*'
+	case g.WaterContent < 40:
+		return '*'
+	default:
+		return '#'
+	}
+}
+
+func (g *Grass) Color() string {
+	switch {
+	case g.WaterContent < 15:
+		return "\033[38;5;102m" // 灰绿
+	case g.WaterContent < 25:
+		return "\033[38;5;184m" // 枯黄
+	case g.WaterContent < 40:
+		return "\033[38;5;34m" // 草绿
+	default:
+		return "\033[38;5;76m" // 鲜绿
+	}
+}
 
 func generateGrass(w *World) {
 	w.GrassMap = make([][]*Grass, w.Height)
@@ -38,33 +58,47 @@ func (w *World) simulateGrass() {
 			if x == 0 || x == w.Width-1 {
 				continue
 			}
-			if w.Lakes[y][x].Height < MinLakeHeightForGrass {
+			g := w.GrassMap[y][x]
+
+			// target WaterContent
+			target := 20.0 + 0.5*w.Moisture[y][x] + w.Lakes[y][x].Height*150.0
+			if w.Weathers.Temperature < 10 {
+				target -= (10 - w.Weathers.Temperature) * 2.0
+			}
+			if w.Weathers.Temperature > 35 {
+				target += (w.Weathers.Temperature - 35) * 2.0
+			}
+
+			// note that WaterContent updates everyday even then grass itself is dead,
+			// which is not that intuitive but i personally believe in its correctness
+			target = min(100.0, max(0.0, target))
+			g.WaterContent = min(100.0, max(0.0, g.WaterContent+(target-g.WaterContent)*0.5))
+
+			if w.Lakes[y][x].Height >= 0.2 {
+				g.Alive = false
+				continue
+			}
+
+			if g.WaterContent < 10 || g.WaterContent > 80 {
+				// Needswork: the model now is still simple. as long as the humidity is too low
+				// or the temperature is not habitable (baked into the WaterContent target above),
+				// the grass dies once its water content crosses too low or too high
+				g.Alive = false
+				continue
+			}
+
+			if !g.Alive {
 				h := w.Map[y][x].Height
 				if h < 0 {
 					h = 0
 				}
+				roll := w.Rng.Float64()
 
-				if w.Lakes[y][x].Height >= 0.05 {
-					w.GrassMap[y][x].Alive = false
-					continue
-				}
+				// influenced by both humidity and height
+				p := (0.0005 * w.Moisture[y][x]) / float64((h+1)*(h+1))
 
-				if w.Moisture[y][x] < 10.0 || w.Weathers.Temperature > 35 ||
-					w.Weathers.Temperature < 10 {
-					// Needswork: the model now is rather simple. as long as the humidity is too low
-					// or the temperature is not habitable, the grass start to die, but by a hardcoded chance
-					if roll := w.Rng.Intn(100); roll > 90 {
-						w.GrassMap[y][x].Alive = false
-					}
-				} else {
-					roll := w.Rng.Float64()
-
-					// influenced by both humidity and height
-					p := (0.002 * w.Moisture[y][x]) / float64((h+1)*(h+1))
-
-					if p > roll {
-						w.GrassMap[y][x].Alive = true
-					}
+				if p > roll {
+					g.Alive = true
 				}
 			}
 		}

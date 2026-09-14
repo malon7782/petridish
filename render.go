@@ -40,8 +40,8 @@ func (w *World) renderWorld() {
 			// grass
 			if w.GrassMap != nil && w.GrassMap[y][x].IsAlive() {
 				grid[y][x] = Cell{
-					Char:  GrassIcon,
-					Color: GrassColor,
+					Char:  w.GrassMap[y][x].Icon(),
+					Color: w.GrassMap[y][x].Color(),
 				}
 			}
 		}
