@@ -16,7 +16,7 @@ type Liquid interface {
 	Source() bool
 }
 
-func handleLiquidEvaporation(grid [][]Liquid, w *World) {
+func handleLiquidEvaporation[L Liquid](grid [][]L, w *World) {
 	for y := range grid {
 		for x := range grid[y] {
 			l := grid[y][x]
@@ -38,13 +38,14 @@ func handleLiquidEvaporation(grid [][]Liquid, w *World) {
 	}
 }
 
-func handleLiquidFlow(grid [][]Liquid, w *World) {
+func handleLiquidFlow[L interface{Liquid; comparable}](grid [][]L, w *World) {
 	var q []pair
+	var NIL L
 
 	for y := range w.Height {
 		for x := range w.Width {
 			l := grid[y][x]
-			if l != nil && l.Level() > 0.0 {
+			if l != NIL && l.Level() > 0.0 {
 				q = append(q, pair{y: y, x: x})
 			}
 		}

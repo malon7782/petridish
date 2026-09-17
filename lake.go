@@ -248,17 +248,8 @@ func generateLake(w *World) {
 }
 
 func (w *World) simulateLake() {
-	// read/write grid instead
-	grid := make([][]Liquid, w.Height) // performance overhead?
-	for y := range grid {
-		grid[y] = make([]Liquid, w.Width)
-		for x := range grid[y] {
-			grid[y][x] = w.Lakes[y][x]
-		}
-	}
-
-	handleLiquidEvaporation(grid, w)
-	handleLiquidFlow(grid, w)
+	handleLiquidEvaporation(w.Lakes, w)
+	handleLiquidFlow(w.Lakes, w)
 
 	// this part of logic is unique for type Lake, so no need to migrate
 	for y := range w.Height {
