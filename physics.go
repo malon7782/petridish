@@ -12,6 +12,8 @@ type Liquid interface {
 	// properties
 	FreezePoint() float64
 	EvapRate() float64 // how fast the liquid dries out
+
+	Source() bool
 }
 
 func handleLiquidEvaporation(grid [][]Liquid, w *World) {
@@ -36,13 +38,13 @@ func handleLiquidEvaporation(grid [][]Liquid, w *World) {
 	}
 }
 
-func handleLiquidFlow(w *World) {
+func handleLiquidFlow(grid [][]Liquid, w *World) {
 	var q []pair
 
 	for y := range w.Height {
 		for x := range w.Width {
-			l := w.Lakes[y][x]
-			if l != nil && l.Height > 0.0 {
+			l := grid[y][x]
+			if l != nil && l.Level() > 0.0 {
 				q = append(q, pair{y: y, x: x})
 			}
 		}
@@ -58,7 +60,7 @@ func handleLiquidFlow(w *World) {
 		delta[i] = make([]float64, w.Width)
 	}
 	for _, cur := range q {
-		l := w.Lakes[cur.y][cur.x]
+		l := grid[cur.y][cur.x]
 		var nb []Type
 		for _, d := range dirs4 {
 			nxt := pair{y: cur.y + d[0], x: cur.x + d[1]}
@@ -66,9 +68,9 @@ func handleLiquidFlow(w *World) {
 				continue
 			}
 
-			l2 := w.Lakes[nxt.y][nxt.x]
-			curLvl := w.Map[cur.y][cur.x].Height + l.Height
-			nxtLvl := w.Map[nxt.y][nxt.x].Height + l2.Height
+			l2 := grid[nxt.y][nxt.x]
+			curLvl := w.Map[cur.y][cur.x].Height + l.Level()
+			nxtLvl := w.Map[nxt.y][nxt.x].Height + l2.Level()
 			if curLvl > nxtLvl {
 				nb = append(nb, Type{diff: curLvl - nxtLvl, coor: nxt})
 			}
@@ -84,7 +86,7 @@ func handleLiquidFlow(w *World) {
 			mn = min(mn, n.diff)
 			s += n.diff
 		}
-		out := min(l.Height, mn/2)
+		out := min(l.Level(), mn/2)
 		for _, n := range nb {
 			d := out * n.diff / s
 			delta[cur.y][cur.x] -= d
@@ -94,7 +96,7 @@ func handleLiquidFlow(w *World) {
 
 	for i := 0; i < w.Height; i++ {
 		for j := 0; j < w.Width; j++ {
-			w.Lakes[i][j].Height += delta[i][j]
+			grid[i][j].SetLevel(grid[i][j].Level() + delta[i][j])
 		}
 	}
 
@@ -105,9 +107,9 @@ func handleLiquidFlow(w *World) {
 			d = w.Width - 1
 		}
 		for j := 0; j < w.Width; j += d {
-			l := w.Lakes[i][j]
-			if !l.IsSource {
-				l.Height *= 0.2
+			l := grid[i][j]
+			if !l.Source() {
+				l.SetLevel(l.Level() * 0.2)
 			}
 		}
 	}

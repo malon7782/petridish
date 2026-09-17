@@ -20,6 +20,7 @@ func (l *Lake) Frozen() bool         { return l.IsFrozen }
 func (l *Lake) SetFrozen(v bool)     { l.IsFrozen = v }
 func (l *Lake) FreezePoint() float64 { return 0 }
 func (l *Lake) EvapRate() float64    { return 0.0004 }
+func (l *Lake) Source() bool         { return l.IsSource }
 
 func (l *Lake) Icon() byte {
 	if l == nil {
@@ -257,7 +258,7 @@ func (w *World) simulateLake() {
 	}
 
 	handleLiquidEvaporation(grid, w)
-	handleLiquidFlow(w)
+	handleLiquidFlow(grid, w)
 
 	// this part of logic is unique for type Lake, so no need to migrate
 	for y := range w.Height {
