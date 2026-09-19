@@ -21,7 +21,7 @@ func (w *World) simulateWeather() {
 
 	// Rain
 	// - roll the duration
-	if w.Weathers.RainLeft <= 0 && w.Rng.Intn(100) < 5 {
+	if w.Weathers.RainLeft <= 0 && w.Rng.Intn(100) < 2 {
 		w.Weathers.RainTotal = w.Rng.Intn(20) + 10 // last for 20 ~ 29 days
 		w.Weathers.RainLeft = w.Weathers.RainTotal
 	}

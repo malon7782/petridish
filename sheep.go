@@ -6,8 +6,16 @@ const (
 )
 
 type Sheep struct {
-	Y, X int
+	Y, X  int
+	HP    float64
+	Alive bool
 }
+
+func (s *Sheep) Pos() (int, int) { return s.Y, s.X }
+func (s *Sheep) Icon() byte      { return 'S' }
+func (s *Sheep) Layer() int      { return 1 }
+func (s *Sheep) Color() string   { return "\033[38;5;255m" }
+func (s *Sheep) IsAlive() bool   { return s.Alive }
 
 func (s *Sheep) Simulate(w *World) {
 	dx := w.Rng.Intn(3) - 1
@@ -23,25 +31,13 @@ func (s *Sheep) Simulate(w *World) {
 			s.X = newX
 		}
 	}
+
+	if roll := w.Rng.Intn(100); roll < 2 {
+		s.Alive = false
+	}
 	// this message is for demo purposes and is indeed redundant.
 	// to be replaced with real events like birth and death of sheep
 	//	w.Logger.Add(w.Day, fmt.Sprintf("Day %d: Sheep moved.", w.Day))
-}
-
-func (s *Sheep) Pos() (int, int) {
-	return s.Y, s.X
-}
-
-func (s *Sheep) Icon() byte {
-	return 'S'
-}
-
-func (s *Sheep) Layer() int {
-	return 1
-}
-
-func (s *Sheep) Color() string {
-	return "\033[38;5;255m"
 }
 
 // map gen related
@@ -54,6 +50,6 @@ func generateSheep(w *World, num int) {
 			ny = w.Rng.Intn(w.Height)
 			nx = w.Rng.Intn(w.Width)
 		}
-		w.Entities = append(w.Entities, &Sheep{Y: ny, X: nx})
+		w.Entities = append(w.Entities, &Sheep{Y: ny, X: nx, HP: 100, Alive: true})
 	}
 }

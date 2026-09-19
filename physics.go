@@ -16,10 +16,10 @@ type Liquid interface {
 	Source() bool
 }
 
-func handleLiquidEvaporation[L Liquid](grid [][]L, w *World) {
-	for y := range grid {
-		for x := range grid[y] {
-			l := grid[y][x]
+func handleLiquidEvaporation[L Liquid](liquidGrid [][]L, w *World) {
+	for y := range liquidGrid {
+		for x := range liquidGrid[y] {
+			l := liquidGrid[y][x]
 			if w.Weathers.Temperature > l.FreezePoint() {
 				if roll := w.Rng.Intn(10); roll > 7 {
 					l.SetFrozen(false)
@@ -38,13 +38,16 @@ func handleLiquidEvaporation[L Liquid](grid [][]L, w *World) {
 	}
 }
 
-func handleLiquidFlow[L interface{Liquid; comparable}](grid [][]L, w *World) {
+func handleLiquidFlow[L interface {
+	Liquid
+	comparable
+}](liquidGrid [][]L, w *World) {
 	var q []pair
 	var NIL L
 
 	for y := range w.Height {
 		for x := range w.Width {
-			l := grid[y][x]
+			l := liquidGrid[y][x]
 			if l != NIL && l.Level() > 0.0 {
 				q = append(q, pair{y: y, x: x})
 			}
@@ -61,7 +64,7 @@ func handleLiquidFlow[L interface{Liquid; comparable}](grid [][]L, w *World) {
 		delta[i] = make([]float64, w.Width)
 	}
 	for _, cur := range q {
-		l := grid[cur.y][cur.x]
+		l := liquidGrid[cur.y][cur.x]
 		var nb []Type
 		for _, d := range dirs4 {
 			nxt := pair{y: cur.y + d[0], x: cur.x + d[1]}
@@ -69,7 +72,7 @@ func handleLiquidFlow[L interface{Liquid; comparable}](grid [][]L, w *World) {
 				continue
 			}
 
-			l2 := grid[nxt.y][nxt.x]
+			l2 := liquidGrid[nxt.y][nxt.x]
 			curLvl := w.Map[cur.y][cur.x].Height + l.Level()
 			nxtLvl := w.Map[nxt.y][nxt.x].Height + l2.Level()
 			if curLvl > nxtLvl {
@@ -97,7 +100,7 @@ func handleLiquidFlow[L interface{Liquid; comparable}](grid [][]L, w *World) {
 
 	for i := 0; i < w.Height; i++ {
 		for j := 0; j < w.Width; j++ {
-			grid[i][j].SetLevel(grid[i][j].Level() + delta[i][j])
+			liquidGrid[i][j].SetLevel(liquidGrid[i][j].Level() + delta[i][j])
 		}
 	}
 
@@ -108,7 +111,7 @@ func handleLiquidFlow[L interface{Liquid; comparable}](grid [][]L, w *World) {
 			d = w.Width - 1
 		}
 		for j := 0; j < w.Width; j += d {
-			l := grid[i][j]
+			l := liquidGrid[i][j]
 			if !l.Source() {
 				l.SetLevel(l.Level() * 0.2)
 			}

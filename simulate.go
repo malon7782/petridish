@@ -11,6 +11,12 @@ func (w *World) simulateWorld() {
 	for _, e := range w.Entities {
 		e.Simulate(w)
 	}
+	// those entities whose 'IsAlive == false' will be kicked out from the list!!
+	for i, e := range w.Entities {
+		if e.IsAlive() == false {
+			w.Entities = append(w.Entities[:i], w.Entities[i+1:]...)
+		}
+	}
 
 	// w(t) -> w(t + 1)
 	w.simulateWeather()

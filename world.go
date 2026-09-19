@@ -8,6 +8,7 @@ type Entity interface {
 	Icon() byte
 	Layer() int
 	Color() string
+	IsAlive() bool
 }
 
 type World struct {
