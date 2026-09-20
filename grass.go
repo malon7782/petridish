@@ -44,7 +44,7 @@ func generateGrass(w *World) {
 	for y := 0; y < w.Height; y++ {
 		w.GrassMap[y] = make([]*Grass, w.Width)
 		for x := 0; x < w.Width; x++ {
-			w.GrassMap[y][x] = &Grass{Alive: false, WaterContent: 60.0}
+			w.GrassMap[y][x] = &Grass{Alive: false, WaterContent: 0.0}
 		}
 	}
 }
@@ -60,34 +60,7 @@ func (w *World) simulateGrass() {
 			}
 			g := w.GrassMap[y][x]
 
-			// target WaterContent
-			target := 20.0 + 0.5*w.Moisture[y][x] + w.Lakes[y][x].Height*150.0
-			if w.Weathers.Temperature < 10 {
-				target -= (10 - w.Weathers.Temperature) * 2.0
-			}
-			if w.Weathers.Temperature > 35 {
-				target += (w.Weathers.Temperature - 35) * 2.0
-			}
-
-			// note that WaterContent updates everyday even then grass itself is dead,
-			// which is not that intuitive but i personally believe in its correctness
-			target = min(100.0, max(0.0, target))
-			g.WaterContent = min(100.0, max(0.0, g.WaterContent+(target-g.WaterContent)*0.5))
-
-			if w.Lakes[y][x].Height >= 0.2 {
-				g.Alive = false
-				continue
-			}
-
-			if g.WaterContent < 10 || g.WaterContent > 80 {
-				// Needswork: the model now is still simple. as long as the humidity is too low
-				// or the temperature is not habitable (baked into the WaterContent target above),
-				// the grass dies once its water content crosses too low or too high
-				g.Alive = false
-				continue
-			}
-
-			if !g.Alive {
+			if !g.Alive && w.Lakes[y][x].Height <= 0.1 {
 				h := w.Map[y][x].Height
 				if h < 0 {
 					h = 0
@@ -99,8 +72,39 @@ func (w *World) simulateGrass() {
 
 				if p > roll {
 					g.Alive = true
+					g.WaterContent = 30.0
 				}
 			}
+
+			if g.Alive {
+				// target WaterContent
+				target := 20.0 + 0.5*w.Moisture[y][x] + w.Lakes[y][x].Height*150.0
+				if w.Weathers.Temperature < 10 {
+					target -= (10 - w.Weathers.Temperature) * 2.0
+				}
+				if w.Weathers.Temperature > 35 {
+					target += (w.Weathers.Temperature - 35) * 2.0
+				}
+
+				target = min(100.0, max(0.0, target))
+				g.WaterContent = min(100.0, max(0.0, g.WaterContent+(target-g.WaterContent)*0.5))
+
+				// drown
+				if w.Lakes[y][x].Height >= 0.2 {
+					g.Alive = false
+					continue
+				}
+
+				// too wet or too dry also dies
+				if g.WaterContent < 10 || g.WaterContent > 80 {
+					// Needswork: the model now is still simple. as long as the humidity is too low
+					// or the temperature is not habitable (baked into the WaterContent target above),
+					// the grass dies once its water content crosses too low or too high
+					g.Alive = false
+					continue
+				}
+			}
+
 		}
 	}
 }

@@ -32,7 +32,15 @@ func (s *Sheep) Simulate(w *World) {
 		}
 	}
 
-	if roll := w.Rng.Intn(100); roll < 2 {
+	if w.GrassMap[s.Y][s.X].Alive {
+		s.HP += w.GrassMap[s.X][s.Y].WaterContent / 10.0
+		w.GrassMap[s.Y][s.X].Alive = false
+		w.GrassMap[s.Y][s.X].WaterContent = 0.0
+	}
+	// Hunger?
+	s.HP -= 5.0
+
+	if s.HP < 0.0 {
 		s.Alive = false
 	}
 	// this message is for demo purposes and is indeed redundant.
