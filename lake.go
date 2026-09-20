@@ -242,7 +242,7 @@ func generateLake(w *World) {
 	}
 	for y := range w.Height {
 		for x := range w.Width {
-			w.Lakes[y][x] = &Lake{Height: 0.0}
+			w.Lakes[y][x] = &Lake{Height: 0.0, Position: y*w.Width + x}
 		}
 	}
 }
