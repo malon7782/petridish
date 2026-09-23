@@ -12,6 +12,55 @@ type Cell struct {
 	Color string
 }
 
+func (w *World) renderLog() {
+	const (
+		HORIZ = '─'
+		VERT = '│'
+		TL = '┌'
+		TR = '┐'
+		BL = '└'
+		BR = '┘'
+	)
+
+	W := w.Width
+	if W < 3 {
+		panic(fmt.Sprintf("Map width is %d. Too small.", W))
+	}
+
+	events := w.Logger.Events
+	events = events[max(0, len(events) - 5) : len(events)]
+	var sb strings.Builder
+	lines := 2                              // top and bottom border
+	for _, ev := range events {
+		lines += (len(ev.Msg) + W-3) / (W-2) // same ceiling division as nlines
+	}
+	sb.Grow(lines * (W + 5))
+
+	sb.WriteRune(TL)
+	for i := 1; i < W-1; i++ { sb.WriteRune(HORIZ) }
+	sb.WriteRune(TR)
+	sb.WriteByte('\n')
+
+	for _, ev := range(events) {
+		msg := ev.Msg
+		nlines := (len(msg) + (W-2) - 1) / (W-2)
+		for i := 0; i < nlines; i++ {
+			sb.WriteRune(VERT)
+			sb.WriteString(msg[i*(W-2) : min(len(msg), (i+1)*(W-2))])
+			diff := (i+1)*(W-2) - len(msg)
+			for diff > 0 { sb.WriteByte(' '); diff-- }
+			sb.WriteRune(VERT)
+			sb.WriteByte('\n')
+		}
+	}
+	sb.WriteRune(BL)
+	for i := 1; i < W-1; i++ { sb.WriteRune(HORIZ) }
+	sb.WriteRune(BR)
+	sb.WriteByte('\n')
+
+	fmt.Print(sb.String())
+}
+
 func (w *World) renderWorld() {
 	fmt.Print("\033[H")
 
@@ -70,8 +119,6 @@ func (w *World) renderWorld() {
 	fmt.Printf("Day: %d Temperature: %.2f Rain: %d\n", w.Day, w.Weathers.Temperature, w.Weathers.RainLeft)
 	var sb strings.Builder
 	sb.Grow(w.Width * w.Height * 20)
-	events := w.Logger.Events
-	eventCount := w.Logger.Num
 
 	// joint everything
 	for y := 0; y < w.Height; y++ {
@@ -80,14 +127,6 @@ func (w *World) renderWorld() {
 			sb.WriteString(c.Color)
 			sb.WriteByte(c.Char)
 			sb.WriteString("\033[0m")
-		}
-		// print log msgs
-		idx := len(events) - eventCount + y
-		if 0 <= idx && y < eventCount {
-			//	output += "  " + events[idx].Msg
-			sb.WriteString("  ")
-			sb.WriteString(events[idx].Msg)
-			sb.WriteString("   ")
 		}
 		sb.WriteByte('\n')
 	}
@@ -102,4 +141,6 @@ func (w *World) renderWorld() {
 		}
 		fmt.Fprintf(os.Stderr, "\n")
 	}
+
+	w.renderLog()
 }

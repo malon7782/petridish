@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 const (
 	MinLakeHeightForSheep = 0.20 // sheeps are safe to step onto lakes that are
 	// shallower than 0.15 unit height
@@ -45,7 +47,7 @@ func (s *Sheep) Simulate(w *World) {
 	}
 	// this message is for demo purposes and is indeed redundant.
 	// to be replaced with real events like birth and death of sheep
-	//	w.Logger.Add(w.Day, fmt.Sprintf("Day %d: Sheep moved.", w.Day))
+	w.Logger.Add(w.Day, fmt.Sprintf("Day %d: Sheep moved.", w.Day))
 }
 
 // map gen related
