@@ -35,7 +35,7 @@ func (s *Sheep) Simulate(w *World) {
 	}
 
 	if w.GrassMap[s.Y][s.X].Alive {
-		s.HP += w.GrassMap[s.X][s.Y].WaterContent / 10.0
+		s.HP += w.GrassMap[s.Y][s.X].WaterContent / 10.0
 		w.GrassMap[s.Y][s.X].Alive = false
 		w.GrassMap[s.Y][s.X].WaterContent = 0.0
 	}
