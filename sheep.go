@@ -19,20 +19,22 @@ func (s *Sheep) Layer() int      { return 1 }
 func (s *Sheep) Color() string   { return "\033[38;5;255m" }
 func (s *Sheep) IsAlive() bool   { return s.Alive }
 
-func (s *Sheep) Simulate(w *World) {
+func (s *Sheep) Roam(w *World, y, x int) (int, int) {
 	dx := w.Rng.Intn(3) - 1
 	dy := w.Rng.Intn(3) - 1
 	newX := s.X + dx
 	newY := s.Y + dy
-
 	if newX >= 0 && newX < w.Width && newY >= 0 && newY < w.Height {
-		if w.Map[newY][newX].Height >= 2 || w.Lakes[newY][newX].Height > MinLakeHeightForSheep {
-			return
-		} else {
-			s.Y = newY
-			s.X = newX
+		if !(w.Map[newY][newX].Height >= 2 || w.Lakes[newY][newX].Height > MinLakeHeightForSheep) {
+			return newY, newX
 		}
 	}
+	return s.Y, s.X
+}
+
+func (s *Sheep) Simulate(w *World) {
+
+	s.Y, s.X = s.Roam(w, s.Y, s.X)
 
 	if w.GrassMap[s.Y][s.X].Alive {
 		s.HP += w.GrassMap[s.Y][s.X].WaterContent / 10.0
@@ -40,7 +42,7 @@ func (s *Sheep) Simulate(w *World) {
 		w.GrassMap[s.Y][s.X].WaterContent = 0.0
 	}
 	// Hunger?
-	s.HP -= 5.0
+	s.HP -= 2.0
 
 	if s.HP < 0.0 {
 		s.Alive = false
